@@ -483,6 +483,13 @@ class CapitalInjectionBuilder:
         self.frequency = AdditionalCapitalFrequency.QUARTERLY
         return self
 
+    def yearly(self, amount: float = None):
+        """Configure as yearly injection"""
+        if amount:
+            self.amount = amount
+        self.frequency = AdditionalCapitalFrequency.YEARLY
+        return self
+
     def one_time(self, amount: float = None, period: int = 1):
         """Configure as one-time injection"""
         if amount:

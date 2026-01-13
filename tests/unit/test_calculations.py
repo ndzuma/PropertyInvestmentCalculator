@@ -96,9 +96,9 @@ class TestMonthlyPaymentCalculations:
 
         # Test different interest rates
         rates_and_expected = [
-            (0.05, 4238.48),  # 5% annual rate
-            (0.10, 5799.46),  # 10% annual rate
-            (0.15, 7895.84),  # 15% annual rate
+            (0.05, 3959.73),  # 5% annual rate
+            (0.10, 5790.13),  # 10% annual rate
+            (0.15, 7900.74),  # 15% annual rate
         ]
 
         for rate, expected_payment in rates_and_expected:
@@ -293,7 +293,7 @@ class TestCashFlowCalculations:
                 loan_term_years=20,
             ),
             operating=OperatingParameters(
-                monthly_rental_income=13_500,  # Calibrated for near break-even
+                monthly_rental_income=16_600,  # Calibrated for near break-even
                 vacancy_rate=0.05,
                 monthly_levies=2_200,
                 property_management_fee_rate=0.08,

@@ -190,23 +190,34 @@ class PropertyPortfolioSimulator:
     def simulate(self) -> List[SimulationSnapshot]:
         """Run the complete simulation and return detailed snapshots"""
 
+        # ALWAYS run monthly for accuracy, filter results by tracking frequency
+        total_monthly_periods = self.strategy.simulation_years * 12
+
+        # Run monthly simulation
+        all_monthly_snapshots = self._run_monthly_simulation(total_monthly_periods)
+
+        # Filter snapshots based on tracking frequency
+        filtered_snapshots = self._filter_snapshots_by_frequency(all_monthly_snapshots)
+
+        # Store filtered snapshots for compatibility with existing code
+        self.snapshots = filtered_snapshots
+
+        return filtered_snapshots
+
+    def _run_monthly_simulation(
+        self, total_monthly_periods: int
+    ) -> List[SimulationSnapshot]:
+        """Run the complete monthly simulation and return all monthly snapshots"""
+
         # Initialize portfolio
         portfolio = self._initialize_portfolio()
 
-        # Determine simulation periods
-        if self.strategy.tracking_frequency == TrackingFrequency.MONTHLY:
-            total_periods = self.strategy.simulation_years * 12
-            periods_per_year = 12
-        else:
-            total_periods = self.strategy.simulation_years
-            periods_per_year = 1
-
         # Create initial snapshot (period 0)
         snapshot = self._create_detailed_snapshot(portfolio, 0, [], [], [])
-        self.snapshots.append(snapshot)
+        all_snapshots = [snapshot]
 
-        # Run simulation
-        for period in range(1, total_periods + 1):
+        # Run simulation monthly
+        for month in range(1, total_monthly_periods + 1):
             if self.simulation_ended:
                 break
 
@@ -214,15 +225,15 @@ class PropertyPortfolioSimulator:
             period_purchases = []
             period_capital_injections = []
 
-            # Apply property appreciation
-            self._apply_appreciation(portfolio, periods_per_year)
+            # Apply monthly property appreciation
+            self._apply_appreciation(portfolio)
 
-            # Apply principal payments and collect rent
-            self._apply_monthly_operations(portfolio, periods_per_year)
+            # Apply monthly principal payments and collect rent
+            self._apply_monthly_operations(portfolio)
 
             # Apply additional capital injections
             capital_injections = self._apply_additional_capital_injections(
-                portfolio, period, periods_per_year
+                portfolio, month
             )
             period_capital_injections.extend(capital_injections)
 
@@ -244,7 +255,7 @@ class PropertyPortfolioSimulator:
             if (
                 self.strategy.enable_refinancing
                 and not self.simulation_ended
-                and self._should_refinance(period, periods_per_year)
+                and self._should_refinance(month)
             ):
                 refinancing_events = self._apply_refinancing(portfolio)
                 period_refinancing_events.extend(refinancing_events)
@@ -254,17 +265,51 @@ class PropertyPortfolioSimulator:
                 purchases = self._apply_reinvestment(portfolio)
                 period_purchases.extend(purchases)
 
-            # Create snapshot for this period
+            # Create snapshot for this month
             snapshot = self._create_detailed_snapshot(
                 portfolio,
-                period,
+                month,
                 period_refinancing_events,
                 period_purchases,
                 period_capital_injections,
             )
-            self.snapshots.append(snapshot)
+            all_snapshots.append(snapshot)
 
-        return self.snapshots
+        return all_snapshots
+
+    def _filter_snapshots_by_frequency(
+        self, monthly_snapshots: List[SimulationSnapshot]
+    ) -> List[SimulationSnapshot]:
+        """Filter monthly snapshots based on requested tracking frequency"""
+        if self.strategy.tracking_frequency == TrackingFrequency.MONTHLY:
+            return monthly_snapshots
+        else:  # YEARLY
+            # Return snapshots for periods 0, 12, 24, 36, etc.
+            filtered = [monthly_snapshots[0]]  # Always include initial snapshot
+            for i in range(12, len(monthly_snapshots), 12):
+                # Update period number to be yearly (1, 2, 3, etc.)
+                snapshot = monthly_snapshots[i]
+                yearly_snapshot = SimulationSnapshot(
+                    period=i // 12,
+                    properties=snapshot.properties,
+                    total_property_value=snapshot.total_property_value,
+                    total_debt=snapshot.total_debt,
+                    total_equity=snapshot.total_equity,
+                    cash_available=snapshot.cash_available,
+                    monthly_cashflow=snapshot.monthly_cashflow,
+                    annual_cashflow=snapshot.annual_cashflow,
+                    total_cash_invested=snapshot.total_cash_invested,
+                    total_additional_capital_injected=snapshot.total_additional_capital_injected,
+                    refinancing_events=snapshot.refinancing_events,
+                    property_purchases=snapshot.property_purchases,
+                    capital_injections=snapshot.capital_injections,
+                    property_yields=snapshot.property_yields,
+                    portfolio_yields=snapshot.portfolio_yields,
+                    simulation_ended=snapshot.simulation_ended,
+                    end_reason=snapshot.end_reason,
+                )
+                filtered.append(yearly_snapshot)
+            return filtered
 
     def _initialize_portfolio(self) -> Dict[str, Any]:
         """Initialize the portfolio with the first property"""
@@ -368,18 +413,16 @@ class PropertyPortfolioSimulator:
                 / ((1 + monthly_rate) ** num_payments - 1)
             )
 
-    def _apply_appreciation(self, portfolio: Dict[str, Any], periods_per_year: int):
-        """Apply property appreciation to all properties"""
+    def _apply_appreciation(self, portfolio: Dict[str, Any]):
+        """Apply monthly property appreciation to all properties"""
         appreciation_rate = self.base_property.financing.appreciation_rate
-        period_appreciation_rate = appreciation_rate / periods_per_year
+        monthly_appreciation_rate = appreciation_rate / 12
 
         for prop in portfolio["properties"]:
-            prop.current_value *= 1 + period_appreciation_rate
-            prop.months_owned += 12 // periods_per_year
+            prop.current_value *= 1 + monthly_appreciation_rate
+            prop.months_owned += 1
 
-    def _apply_monthly_operations(
-        self, portfolio: Dict[str, Any], periods_per_year: int
-    ):
+    def _apply_monthly_operations(self, portfolio: Dict[str, Any]):
         """Apply monthly operations: principal payments and rent collection"""
 
         monthly_cashflow = 0.0
@@ -400,11 +443,8 @@ class PropertyPortfolioSimulator:
             monthly_cashflow += property_monthly_cashflow
             prop.monthly_cashflow = property_monthly_cashflow
 
-        # Apply cash flow to available cash
-        if periods_per_year == 12:  # Monthly tracking
-            portfolio["cash_available"] += monthly_cashflow
-        else:  # Yearly tracking
-            portfolio["cash_available"] += monthly_cashflow * 12
+        # Apply monthly cash flow to available cash
+        portfolio["cash_available"] += monthly_cashflow
 
     def _calculate_monthly_operating_deficit(self, portfolio: Dict[str, Any]) -> float:
         """Calculate the monthly operating deficit if any"""
@@ -419,12 +459,10 @@ class PropertyPortfolioSimulator:
 
         return total_monthly_expenses
 
-    def _should_refinance(self, period: int, periods_per_year: int) -> bool:
-        """Check if it's time to refinance"""
-        refinance_frequency_periods = (
-            self.strategy.refinance_frequency_years * periods_per_year
-        )
-        return period % refinance_frequency_periods == 0
+    def _should_refinance(self, current_month: int) -> bool:
+        """Check if properties should be refinanced this month"""
+        refinance_frequency_months = int(self.strategy.refinance_frequency_years * 12)
+        return current_month % refinance_frequency_months == 0
 
     def _apply_refinancing(self, portfolio: Dict[str, Any]) -> List[RefinancingEvent]:
         """Apply refinancing to eligible properties"""
@@ -774,7 +812,7 @@ class PropertyPortfolioSimulator:
             )
 
     def _apply_additional_capital_injections(
-        self, portfolio: Dict[str, Any], current_period: int, periods_per_year: int
+        self, portfolio: Dict[str, Any], current_month: int
     ) -> List[CapitalInjectionEvent]:
         """Apply additional capital injections based on strategy configuration"""
 
@@ -784,9 +822,7 @@ class PropertyPortfolioSimulator:
             return capital_injections
 
         for injection_config in self.strategy.additional_capital_injections:
-            should_inject = self._should_inject_capital(
-                injection_config, current_period, periods_per_year
-            )
+            should_inject = self._should_inject_capital(injection_config, current_month)
 
             if should_inject:
                 portfolio["cash_available"] += injection_config.amount
@@ -807,53 +843,43 @@ class PropertyPortfolioSimulator:
     def _should_inject_capital(
         self,
         injection_config: AdditionalCapitalInjection,
-        current_period: int,
-        periods_per_year: int,
+        current_month: int,
     ) -> bool:
-        """Determine if capital should be injected this period"""
+        """Determine if capital should be injected this month"""
 
-        # Check if we're in the injection period range
-        if current_period < injection_config.start_period:
+        # Check if we're in the injection month range
+        # Convert period-based config to month-based
+        start_month = injection_config.start_period
+        end_month = injection_config.end_period
+
+        if current_month < start_month:
             return False
 
-        if injection_config.end_period and current_period > injection_config.end_period:
+        if end_month and current_month > end_month:
             return False
 
-        # Handle one-time injections in specific periods
+        # Handle one-time injections in specific months
         if injection_config.frequency == AdditionalCapitalFrequency.ONE_TIME:
             if injection_config.specific_periods:
-                return current_period in injection_config.specific_periods
+                return current_month in injection_config.specific_periods
             else:
-                # One-time injection at start_period
-                return current_period == injection_config.start_period
+                # One-time injection at start_month
+                return current_month == start_month
 
-        # Handle recurring injections
-        periods_since_start = current_period - injection_config.start_period
+        # Handle recurring injections - always work in monthly terms
+        months_since_start = current_month - start_month
 
         if injection_config.frequency == AdditionalCapitalFrequency.MONTHLY:
-            # Every period for monthly tracking, every 12 periods for yearly tracking
-            if periods_per_year == 12:  # Monthly tracking
-                return True
-            else:  # Yearly tracking - inject every period (which represents a year)
-                return True
+            return True  # Every month
 
         elif injection_config.frequency == AdditionalCapitalFrequency.QUARTERLY:
-            if periods_per_year == 12:  # Monthly tracking
-                return periods_since_start % 3 == 0
-            else:  # Yearly tracking - inject every period (treating as quarterly within the year)
-                return True
+            return months_since_start % 3 == 0  # Every 3 months
 
         elif injection_config.frequency == AdditionalCapitalFrequency.YEARLY:
-            if periods_per_year == 12:  # Monthly tracking
-                return periods_since_start % 12 == 0
-            else:  # Yearly tracking
-                return True
+            return months_since_start % 12 == 0  # Every 12 months
 
         elif injection_config.frequency == AdditionalCapitalFrequency.FIVE_YEARLY:
-            if periods_per_year == 12:  # Monthly tracking
-                return periods_since_start % (5 * 12) == 0
-            else:  # Yearly tracking
-                return periods_since_start % 5 == 0
+            return months_since_start % (5 * 12) == 0  # Every 60 months
 
         return False
 

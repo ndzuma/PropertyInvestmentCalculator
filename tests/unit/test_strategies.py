@@ -113,7 +113,7 @@ class TestStrategyFactoryFunctions:
         )
 
         assert strategy.leverage_ratio == 0.8
-        assert strategy.cash_ratio == 0.2
+        assert abs(strategy.cash_ratio - 0.2) < 0.001  # Handle floating point precision
         assert strategy.enable_refinancing is False
         assert strategy.refinance_frequency_years == 1.0
 
@@ -221,7 +221,9 @@ class TestStrategyConfigBuilder:
 
         assert strategy.strategy_type == StrategyType.MIXED
         assert strategy.leveraged_property_ratio == 0.7
-        assert strategy.cash_property_ratio == 0.3
+        assert (
+            abs(strategy.cash_property_ratio - 0.3) < 0.001
+        )  # Handle floating point precision
 
     def test_builder_custom_parameters(self):
         """Test builder with custom parameters"""
@@ -431,7 +433,9 @@ class TestStrategyValidationAndEdgeCases:
         # Very high leverage
         high_leverage = create_leveraged_strategy(leverage_ratio=0.95)
         assert high_leverage.leverage_ratio == 0.95
-        assert high_leverage.cash_ratio == 0.05
+        assert (
+            abs(high_leverage.cash_ratio - 0.05) < 0.001
+        )  # Handle floating point precision
 
     def test_extreme_property_ratios(self):
         """Test mixed strategies with extreme property ratios"""
@@ -467,14 +471,14 @@ class TestStrategyValidationAndEdgeCases:
         assert zero_leverage.cash_ratio == 1.0
 
     def test_strategy_consistency_cash_only(self):
-        """Test cash-only strategy internal consistency"""
+        """Test cash-only strategy consistency"""
         strategy = create_cash_strategy()
 
         # Cash strategy should have no leveraged properties
         assert strategy.leveraged_property_ratio == 0.0
         assert strategy.cash_property_ratio == 1.0
         assert strategy.leverage_ratio == 0.0
-        assert strategy.cash_ratio == 1.0
+        assert abs(strategy.cash_ratio - 1.0) < 0.001  # Handle floating point precision
         assert strategy.first_property_type == FirstPropertyType.CASH
         assert strategy.enable_refinancing is False
 
@@ -486,7 +490,7 @@ class TestStrategyValidationAndEdgeCases:
         assert strategy.leveraged_property_ratio == 1.0
         assert strategy.cash_property_ratio == 0.0
         assert strategy.leverage_ratio == 0.7
-        assert strategy.cash_ratio == 0.3
+        assert abs(strategy.cash_ratio - 0.3) < 0.001  # Handle floating point precision
         assert strategy.first_property_type == FirstPropertyType.LEVERAGED
 
     def test_strategy_consistency_mixed(self):
@@ -499,7 +503,7 @@ class TestStrategyValidationAndEdgeCases:
         assert strategy.leveraged_property_ratio == 0.6
         assert strategy.cash_property_ratio == 0.4
         assert strategy.leverage_ratio == 0.8
-        assert strategy.cash_ratio == 0.2  # 1 - leverage_ratio
+        assert abs(strategy.cash_ratio - 0.2) < 0.001  # Handle floating point precision
 
     def test_empty_capital_injections_list(self):
         """Test strategy with empty capital injections list"""

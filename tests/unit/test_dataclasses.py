@@ -494,22 +494,22 @@ class TestPropertyInvestment:
 
     def test_monthly_bond_payment_missing_data_error(self):
         """Test monthly bond payment raises error when required data is missing"""
-        investment = PropertyInvestment(
-            acquisition_costs=PropertyAcquisitionCostsBuilder().build(),
-            financing=FinancingParameters(
-                ltv_ratio=0.5,
-                financing_type=FinancingType.LEVERAGED,
-                appreciation_rate=0.06,
-                interest_rate=None,  # Missing but needed for calculation
-                loan_term_years=None,  # Missing but needed for calculation
-            ),
-            operating=OperatingParametersBuilder().build(),
-            strategy=InvestmentStrategyBuilder().build(),
-        )
-
-        # This should be caught during object creation, but if not:
-        with pytest.raises(ValueError):
-            _ = investment.monthly_bond_payment
+        # Error should be raised during object creation due to validation
+        with pytest.raises(
+            ValueError, match="Interest rate required for leveraged financing"
+        ):
+            investment = PropertyInvestment(
+                acquisition_costs=PropertyAcquisitionCostsBuilder().build(),
+                financing=FinancingParameters(
+                    ltv_ratio=0.5,
+                    financing_type=FinancingType.LEVERAGED,
+                    appreciation_rate=0.06,
+                    interest_rate=None,  # Missing but needed for calculation
+                    loan_term_years=None,  # Missing but needed for calculation
+                ),
+                operating=OperatingParametersBuilder().build(),
+                strategy=InvestmentStrategyBuilder().build(),
+            )
 
     def test_monthly_cashflow_positive(self):
         """Test monthly cashflow calculation with positive result"""
