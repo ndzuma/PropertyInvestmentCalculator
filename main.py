@@ -87,6 +87,11 @@ class OperatingParameters:
             + (self.monthly_furnishing_repair_costs or 0)
         )
 
+    @property
+    def annual_rental_income(self) -> float:
+        """Annual rental income before vacancy"""
+        return self.monthly_rental_income * 12
+
 
 @dataclass
 class InvestmentStrategy:

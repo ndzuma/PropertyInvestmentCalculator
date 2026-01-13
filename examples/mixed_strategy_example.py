@@ -1,6 +1,11 @@
 """
-Example showcasing mixed strategy functionality for property investment simulation
+Example showcasing mixed strategy functionality - combining cash and leveraged properties
 """
+
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import (
     FinancingParameters,
@@ -120,7 +125,7 @@ def example_1_mixed_70_30_start_leverage():
     print(f"Total Portfolio Value: R{final_snapshot.total_property_value:,.0f}")
     print(f"Total Debt: R{final_snapshot.total_debt:,.0f}")
     print(f"Total Equity: R{final_snapshot.total_equity:,.0f}")
-    print(f"Monthly Net Cash Flow: R{final_snapshot.monthly_net_cashflow:,.0f}")
+    print(f"Monthly Net Cash Flow: R{final_snapshot.monthly_cashflow:,.0f}")
 
     return snapshots
 
@@ -165,7 +170,7 @@ def example_2_mixed_50_50_start_cash():
 
         print(
             f"{snapshot.period:4d} | {len(snapshot.properties):5d} | {leveraged_count:9d} | {cash_count:4d} | "
-            f"R{snapshot.total_property_value:12,.0f} | R{snapshot.monthly_net_cashflow:8,.0f} | "
+            f"R{snapshot.total_property_value:12,.0f} | R{snapshot.monthly_cashflow:8,.0f} | "
             f"R{snapshot.cash_available:12,.0f}"
         )
 
@@ -234,11 +239,11 @@ def example_3_compare_start_types():
 
     print(
         f"Start Lev|     {len(final_a.properties):5d} |     {leveraged_a:5d} | {cash_a:4d} | "
-        f"R{final_a.total_equity:10,.0f} | R{final_a.monthly_net_cashflow:8,.0f} | R{net_worth_a:9,.0f}"
+        f"R{final_a.total_equity:10,.0f} | R{final_a.monthly_cashflow:8,.0f} | R{net_worth_a:9,.0f}"
     )
     print(
         f"Start Cash|    {len(final_b.properties):5d} |     {leveraged_b:5d} | {cash_b:4d} | "
-        f"R{final_b.total_equity:10,.0f} | R{final_b.monthly_net_cashflow:8,.0f} | R{net_worth_b:9,.0f}"
+        f"R{final_b.total_equity:10,.0f} | R{final_b.monthly_cashflow:8,.0f} | R{net_worth_b:9,.0f}"
     )
 
     return snapshots_a, snapshots_b
@@ -297,11 +302,11 @@ def example_4_extreme_mixed_strategies():
 
     print(
         f"Aggressive  |     {len(final_agg.properties):5d} | R{final_agg.total_property_value:13,.0f} | "
-        f"R{final_agg.total_debt:9,.0f} | R{final_agg.total_equity:9,.0f} | R{final_agg.monthly_net_cashflow:8,.0f}"
+        f"R{final_agg.total_debt:9,.0f} | R{final_agg.total_equity:9,.0f} | R{final_agg.monthly_cashflow:8,.0f}"
     )
     print(
         f"Conservative|     {len(final_cons.properties):5d} | R{final_cons.total_property_value:13,.0f} | "
-        f"R{final_cons.total_debt:9,.0f} | R{final_cons.total_equity:9,.0f} | R{final_cons.monthly_net_cashflow:8,.0f}"
+        f"R{final_cons.total_debt:9,.0f} | R{final_cons.total_equity:9,.0f} | R{final_cons.monthly_cashflow:8,.0f}"
     )
 
     return snapshots_aggressive, snapshots_conservative

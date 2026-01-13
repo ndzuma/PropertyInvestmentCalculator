@@ -1,6 +1,11 @@
 """
-Example showcasing yield calculations for property investment simulation
+Example showcasing yield calculation functionality for property investment simulation
 """
+
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import (
     FinancingParameters,

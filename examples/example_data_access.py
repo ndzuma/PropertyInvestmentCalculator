@@ -1,6 +1,11 @@
 """
-Example of how to access detailed simulation data for charting and analysis
+Example demonstrating how to access and analyze simulation data
 """
+
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import (
     FinancingParameters,
@@ -77,19 +82,19 @@ def example_detailed_data_access():
 
     # Extract data arrays for charting
     periods = [snap.period for snap in snapshots]
-    property_counts = [snap.num_properties for snap in snapshots]
+    property_counts = [len(snap.properties) for snap in snapshots]
     total_values = [snap.total_property_value for snap in snapshots]
     equity_values = [snap.total_equity for snap in snapshots]
     debt_values = [snap.total_debt for snap in snapshots]
     cash_available = [snap.cash_available for snap in snapshots]
-    monthly_cashflows = [snap.monthly_net_cashflow for snap in snapshots]
+    net_cashflows = [snap.monthly_cashflow for snap in snapshots]
     total_invested = [snap.total_cash_invested for snap in snapshots]
 
     print(f"Total data points: {len(snapshots)}")
     print(f"Periods: {periods[:6]}... (first 6 months)")
     print(f"Property counts: {property_counts[:6]}...")
     print(f"Total values: {[f'R{v:,.0f}' for v in total_values[:6]]}...")
-    print(f"Monthly cashflows: {[f'R{cf:,.0f}' for cf in monthly_cashflows[:6]]}...")
+    print(f"Monthly cashflows: {[f'R{cf:,.0f}' for cf in net_cashflows[:6]]}...")
 
     # Example 2: Accessing refinancing events in detail
     print("\n\nEXAMPLE 2: Refinancing Events Tracking")
@@ -105,7 +110,7 @@ def example_detailed_data_access():
         print(f"Period {period}:")
         for event in events:
             print(f"  Property {event.property_id}:")
-            print(f"    Property Value: R{event.property_value_at_refi:,.0f}")
+            print(f"    Property Value: R{event.property_value:,.0f}")
             print(f"    Old Loan: R{event.old_loan_amount:,.0f}")
             print(f"    New Loan: R{event.new_loan_amount:,.0f}")
             print(f"    Cash Extracted: R{event.cash_extracted:,.0f}")
@@ -144,7 +149,7 @@ def example_detailed_data_access():
                     "values": [],
                     "loan_amounts": [],
                     "cashflows": [],
-                    "purchase_period": prop.purchase_period,
+                    "financing_type": prop.financing_type,
                 }
 
             property_tracking[prop.property_id]["periods"].append(snapshot.period)
@@ -156,7 +161,7 @@ def example_detailed_data_access():
 
     print("Individual property tracking data:")
     for prop_id, data in property_tracking.items():
-        print(f"Property {prop_id} (purchased in period {data['purchase_period']}):")
+        print(f"Property {prop_id} (financing: {data['financing_type']}):")
         print(f"  Periods tracked: {len(data['periods'])}")
         print(
             f"  Value progression: R{data['values'][0]:,.0f} -> R{data['values'][-1]:,.0f}"
@@ -171,14 +176,25 @@ def example_detailed_data_access():
 
     cash_flow_analysis = []
     for snapshot in snapshots:
+        # Calculate rental income and expenses from properties
+        total_rental_income = 0
+        total_debt_service = 0
+        for prop in snapshot.properties:
+            total_rental_income += prop.annual_rental_income / 12
+            total_debt_service += prop.monthly_payment
+
+        total_expenses = 0
+        for prop in snapshot.properties:
+            total_expenses += prop.annual_expenses / 12
+
         analysis = {
             "period": snapshot.period,
-            "rental_income": snapshot.monthly_rental_income,
-            "operating_expenses": snapshot.monthly_operating_expenses,
-            "debt_service": snapshot.monthly_debt_service,
-            "net_cashflow": snapshot.monthly_net_cashflow,
+            "rental_income": total_rental_income,
+            "operating_expenses": total_expenses,
+            "debt_service": total_debt_service,
+            "net_cashflow": snapshot.monthly_cashflow,
             "cash_available": snapshot.cash_available,
-            "properties": snapshot.num_properties,
+            "properties": len(snapshot.properties),
         }
         cash_flow_analysis.append(analysis)
 
@@ -245,7 +261,7 @@ def example_detailed_data_access():
     else:
         print(f"Simulation completed successfully for {final_snapshot.period} periods")
 
-    print(f"Final portfolio: {final_snapshot.num_properties} properties")
+    print(f"Final portfolio: {len(final_snapshot.properties)} properties")
     print(
         f"Final net worth: R{final_snapshot.total_equity + final_snapshot.cash_available:,.0f}"
     )
@@ -323,10 +339,10 @@ def compare_multiple_strategies_data():
     for strategy_name, snapshots in comparison_results.items():
         comparison_data[strategy_name] = {
             "periods": [s.period for s in snapshots],
-            "property_counts": [s.num_properties for s in snapshots],
+            "property_counts": [len(s.properties) for s in snapshots],
             "equity_values": [s.total_equity for s in snapshots],
             "net_worth": [s.total_equity + s.cash_available for s in snapshots],
-            "monthly_cashflows": [s.monthly_net_cashflow for s in snapshots],
+            "monthly_cashflows": [s.monthly_cashflow for s in snapshots],
             "total_property_values": [s.total_property_value for s in snapshots],
             "debt_levels": [s.total_debt for s in snapshots],
         }
