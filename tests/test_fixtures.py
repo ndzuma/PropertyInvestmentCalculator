@@ -319,6 +319,11 @@ class InvestmentBuilder:
         self.operating_builder.with_monthly_rental_income(income)
         return self
 
+    def with_appreciation_rate(self, rate: float):
+        """Set the appreciation rate"""
+        self.financing_builder.with_appreciation_rate(rate)
+        return self
+
     def with_investment_amount(self, amount: float):
         """Set the available investment amount"""
         self.strategy_builder.with_investment_amount(amount)
