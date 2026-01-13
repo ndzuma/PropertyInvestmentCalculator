@@ -96,6 +96,16 @@ print(f"Total equity: R{final_snapshot.total_equity:,.0f}")
 print(f"Monthly cash flow: R{final_snapshot.monthly_cashflow:,.0f}")
 ```
 
+## Simulation Behavior
+
+The simulator runs with monthly internal calculations for accurate handling of:
+- Monthly/quarterly injections and their timing
+- Loan amortization and monthly bond payments  
+- Cash flow deficits and early termination
+- Refinancing checks (which rely on monthly accruals)
+
+For yearly tracking frequency, the simulator samples snapshots annually while maintaining monthly precision internally.
+
 ## Yield Calculations
 
 The simulator automatically calculates four key yield metrics annually:
@@ -215,16 +225,23 @@ for snapshot in snapshots:
 
 ```
 PropertyInvestmentCalculator/
-├── main.py                 # Core data classes and property definitions
-├── strategies.py           # Simulation engine and strategy configurations
-├── reports.py             # Reporting and output formatting
-├── test_basic.py          # Basic functionality tests
-├── examples/              # Example scripts and use cases
-│   ├── example_data_access.py      # Data extraction examples
+├── main.py                         # Core data classes and property definitions
+├── strategies.py                   # Simulation engine and strategy configurations
+├── reports.py                     # Reporting and output formatting
+├── test_basic.py                  # Basic functionality tests
+├── test_portfolio_yields.py       # Portfolio yield calculation tests
+├── run_unit_tests.py              # Test runner script
+├── tests/                         # Comprehensive test suite
+│   ├── unit/                      # Unit tests for individual components
+│   ├── integration/               # Integration tests for full workflows
+│   ├── conftest.py               # Test configuration and fixtures
+│   └── README.md                 # Testing documentation
+├── examples/                      # Example scripts and use cases
+│   ├── example_data_access.py    # Data extraction examples
 │   ├── capital_injection_example.py # Capital injection scenarios
-│   ├── mixed_strategy_example.py   # Mixed financing strategies
-│   └── yield_example.py            # Yield calculation examples
-└── README.md              # This file
+│   ├── mixed_strategy_example.py # Mixed financing strategies
+│   └── yield_example.py          # Yield calculation examples
+└── README.md                     # This file
 ```
 
 ## Core Classes
@@ -331,21 +348,38 @@ Year 3: R500,000 injected, 5 properties, R7,100,000 portfolio
 
 1. Clone or download the repository
 2. Ensure Python 3.7+ is installed
-3. No external dependencies required (uses standard library only)
+3. Install dependencies: `pip install -r requirements.txt`
 4. Run examples: `python examples/example_data_access.py`
 
 ## Testing
 
 Run the basic test suite:
 ```bash
+# Basic tests
 python test_basic.py
+
+# Portfolio yield tests  
+python test_portfolio_yields.py
+
+# All unit tests
+python run_unit_tests.py
+
+# Full test suite (requires pytest)
+pytest tests/
 ```
 
 This will test:
 - Property calculation methods
 - Cash and leveraged strategies
 - Yield calculations
-- Basic simulation functionality
+- Simulation functionality
+- Integration scenarios
+
+### Test Structure
+- **Unit tests**: Test individual components and functions
+- **Integration tests**: Test complete simulation workflows
+- Tests include scenarios for cash deficits, early termination, and edge cases
+- All tests run with monthly internal precision for accuracy
 
 ## Contributing
 
