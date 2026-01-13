@@ -244,6 +244,7 @@ def main():
         AdditionalCapitalFrequency,
         AdditionalCapitalInjection,
         FirstPropertyType,
+        PropertyPortfolioSimulator,
         TrackingFrequency,
         compare_strategies,
         create_cash_strategy,
@@ -344,7 +345,16 @@ def main():
 
     # Run strategy comparison with summary output
     print("\n--- STRATEGY COMPARISON (SUMMARY) ---")
-    simulation_results = compare_strategies(investment, strategies, detailed=False)
+
+    # First, run simulations for each strategy
+    strategy_results = []
+    for strategy_name, strategy_config in strategies:
+        simulator = PropertyPortfolioSimulator(investment, strategy_config)
+        snapshots = simulator.simulate()
+        strategy_results.append((strategy_name, snapshots))
+
+    # Now compare the results
+    simulation_results = compare_strategies(strategy_results)
 
     print("\n" + "=" * 80)
     print("DETAILED SIMULATION EXAMPLE")
