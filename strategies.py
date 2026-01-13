@@ -99,6 +99,25 @@ class PropertyYields:
 
 
 @dataclass
+class PortfolioYields:
+    """Annual yield calculations for the entire portfolio"""
+
+    period: int
+    portfolio_rental_yield: float  # Total annual rental income / total portfolio value
+    portfolio_net_rental_yield: float  # (Total annual rental income - total operating expenses) / total portfolio value
+    portfolio_cash_on_cash_return: float  # Total annual cashflow / total cash invested
+    portfolio_capital_growth_yield: float  # Annualized portfolio appreciation
+    portfolio_total_return_yield: (
+        float  # Portfolio net rental yield + portfolio capital growth yield
+    )
+    total_annual_rental_income: float
+    total_annual_operating_expenses: float
+    total_annual_cashflow: float
+    total_portfolio_value: float
+    total_cash_invested: float
+
+
+@dataclass
 class RefinancingEvent:
     """Details of a refinancing event"""
 
@@ -148,6 +167,7 @@ class SimulationSnapshot:
     property_purchases: List[PropertyPurchase]
     capital_injections: List[CapitalInjectionEvent]
     property_yields: Optional[List[PropertyYields]] = None
+    portfolio_yields: Optional[PortfolioYields] = None
     simulation_ended: bool = False
     end_reason: Optional[str] = None
 
@@ -685,6 +705,13 @@ class PropertyPortfolioSimulator:
             1 if self.strategy.tracking_frequency == TrackingFrequency.YEARLY else 12,
         )
 
+        # Calculate portfolio yields
+        portfolio_yields = self._calculate_portfolio_yields(
+            portfolio,
+            period,
+            1 if self.strategy.tracking_frequency == TrackingFrequency.YEARLY else 12,
+        )
+
         # Calculate totals
         total_property_value = sum(
             prop.current_value for prop in portfolio["properties"]
@@ -719,6 +746,7 @@ class PropertyPortfolioSimulator:
                 property_purchases=purchases,
                 capital_injections=capital_injections,
                 property_yields=property_yields,
+                portfolio_yields=portfolio_yields,
                 simulation_ended=self.simulation_ended,
                 end_reason=self.end_reason,
             )
@@ -917,6 +945,99 @@ class PropertyPortfolioSimulator:
             capital_growth_yield=capital_growth_yield,
         )
 
+    def _calculate_portfolio_yields(
+        self, portfolio: Dict[str, Any], current_period: int, periods_per_year: int
+    ) -> PortfolioYields:
+        """Calculate yields for the entire portfolio"""
+
+        properties = portfolio.get("properties", [])
+
+        if not properties:
+            return PortfolioYields(
+                period=current_period,
+                portfolio_rental_yield=0.0,
+                portfolio_net_rental_yield=0.0,
+                portfolio_cash_on_cash_return=0.0,
+                portfolio_capital_growth_yield=0.0,
+                portfolio_total_return_yield=0.0,
+                total_annual_rental_income=0.0,
+                total_annual_operating_expenses=0.0,
+                total_annual_cashflow=0.0,
+                total_portfolio_value=0.0,
+                total_cash_invested=0.0,
+            )
+
+        # Calculate portfolio totals
+        total_portfolio_value = sum(prop.current_value for prop in properties)
+        total_annual_rental_income = (
+            len(properties) * self.base_property.operating.annual_rental_income
+        )
+        total_annual_operating_expenses = (
+            len(properties) * self._calculate_annual_expenses()
+        )
+
+        # Calculate total annual cashflow
+        total_annual_cashflow = portfolio.get("cash_flow_12_months", 0.0)
+        if total_annual_cashflow == 0.0:
+            # Fallback calculation if not tracked
+            monthly_cashflow = self._calculate_monthly_cashflow()
+            total_annual_cashflow = monthly_cashflow * 12 * len(properties)
+
+        # Calculate total cash invested
+        total_cash_invested = self._calculate_total_cash_invested(portfolio)
+
+        # Calculate portfolio yields
+        portfolio_rental_yield = 0.0
+        portfolio_net_rental_yield = 0.0
+        portfolio_cash_on_cash_return = 0.0
+        portfolio_capital_growth_yield = 0.0
+
+        if total_portfolio_value > 0:
+            portfolio_rental_yield = total_annual_rental_income / total_portfolio_value
+            portfolio_net_rental_yield = (
+                total_annual_rental_income - total_annual_operating_expenses
+            ) / total_portfolio_value
+
+        if total_cash_invested > 0:
+            portfolio_cash_on_cash_return = total_annual_cashflow / total_cash_invested
+
+        # Calculate portfolio capital growth yield (weighted average)
+        total_weighted_growth = 0.0
+        total_weight = 0.0
+
+        for prop in properties:
+            if prop.months_owned > 0 and prop.purchase_price > 0:
+                years_held = prop.months_owned / 12
+                if years_held > 0:
+                    property_growth = (
+                        (prop.current_value / prop.purchase_price) ** (1 / years_held)
+                    ) - 1
+                    weight = prop.current_value
+                    total_weighted_growth += property_growth * weight
+                    total_weight += weight
+
+        if total_weight > 0:
+            portfolio_capital_growth_yield = total_weighted_growth / total_weight
+
+        # Calculate total return yield
+        portfolio_total_return_yield = (
+            portfolio_net_rental_yield + portfolio_capital_growth_yield
+        )
+
+        return PortfolioYields(
+            period=current_period,
+            portfolio_rental_yield=portfolio_rental_yield,
+            portfolio_net_rental_yield=portfolio_net_rental_yield,
+            portfolio_cash_on_cash_return=portfolio_cash_on_cash_return,
+            portfolio_capital_growth_yield=portfolio_capital_growth_yield,
+            portfolio_total_return_yield=portfolio_total_return_yield,
+            total_annual_rental_income=total_annual_rental_income,
+            total_annual_operating_expenses=total_annual_operating_expenses,
+            total_annual_cashflow=total_annual_cashflow,
+            total_portfolio_value=total_portfolio_value,
+            total_cash_invested=total_cash_invested,
+        )
+
 
 def create_cash_strategy(
     reinvestment: bool = True,
@@ -1040,6 +1161,31 @@ def print_detailed_simulation_results(snapshots: List[SimulationSnapshot], title
                 print(f"      Cash-on-Cash Return: {yields.cash_on_cash_return:.2%}")
                 print(f"      Capital Growth Yield: {yields.capital_growth_yield:.2%}")
                 print(f"      Total Return Yield: {yields.total_return_yield:.2%}")
+
+        # Show portfolio yields if available
+        if snapshot.portfolio_yields:
+            print(f"  PORTFOLIO YIELDS:")
+            print(
+                f"    Portfolio Rental Yield: {snapshot.portfolio_yields.portfolio_rental_yield:.2%}"
+            )
+            print(
+                f"    Portfolio Net Rental Yield: {snapshot.portfolio_yields.portfolio_net_rental_yield:.2%}"
+            )
+            print(
+                f"    Portfolio Cash-on-Cash Return: {snapshot.portfolio_yields.portfolio_cash_on_cash_return:.2%}"
+            )
+            print(
+                f"    Portfolio Capital Growth Yield: {snapshot.portfolio_yields.portfolio_capital_growth_yield:.2%}"
+            )
+            print(
+                f"    Portfolio Total Return Yield: {snapshot.portfolio_yields.portfolio_total_return_yield:.2%}"
+            )
+            print(
+                f"    Total Portfolio Value: R{snapshot.portfolio_yields.total_portfolio_value:,.0f}"
+            )
+            print(
+                f"    Total Cash Invested: R{snapshot.portfolio_yields.total_cash_invested:,.0f}"
+            )
 
         # Show capital injection events
         if snapshot.capital_injections:
