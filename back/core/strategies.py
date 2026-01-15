@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from main import FinancingType, PropertyInvestment, RefineFrequency
+from .main import FinancingType, PropertyInvestment, RefineFrequency
 
 
 class StrategyType(Enum):

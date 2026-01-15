@@ -1,0 +1,104 @@
+{
+  "property": {
+    "purchase_price": 1200000,
+    "transfer_duty": 15000,
+    "conveyancing_fees": 20000,
+    "bond_registration": 18000,
+    "furnishing_cost": 60000
+  },
+  "operating": {
+    "monthly_rental_income": 14000,
+    "vacancy_rate": 0.05,
+    "monthly_levies": 1800,
+    "property_management_fee_rate": 0.08,
+    "monthly_insurance": 700,
+    "monthly_maintenance_reserve": 900,
+    "monthly_furnishing_repair_costs": 400
+  },
+  "available_capital": 6000000,
+  "capital_injections": [
+    {
+      "amount": 8000,
+      "frequency": "monthly",
+      "start_period": 1,
+      "end_period": 60
+    },
+    {
+      "amount": 75000,
+      "frequency": "yearly",
+      "start_period": 12,
+      "end_period": null
+    },
+    {
+      "amount": 150000,
+      "frequency": "one_time",
+      "start_period": 1,
+      "end_period": null,
+      "specific_periods": [24, 48]
+    }
+  ],
+  "strategies": [
+    {
+      "name": "Conservative Cash Only",
+      "strategy_type": "cash_only",
+      "simulation_years": 8,
+      "reinvest_cashflow": true
+    },
+    {
+      "name": "Moderate Leverage 60%",
+      "strategy_type": "leveraged",
+      "ltv_ratio": 0.6,
+      "interest_rate": 0.095,
+      "loan_term_years": 25,
+      "appreciation_rate": 0.055,
+      "simulation_years": 8,
+      "reinvest_cashflow": true,
+      "enable_refinancing": true,
+      "refinance_frequency": "annually",
+      "target_refinance_ltv": 0.5
+    },
+    {
+      "name": "Aggressive Leverage 80%",
+      "strategy_type": "leveraged",
+      "ltv_ratio": 0.8,
+      "interest_rate": 0.105,
+      "loan_term_years": 20,
+      "appreciation_rate": 0.06,
+      "simulation_years": 8,
+      "reinvest_cashflow": true,
+      "enable_refinancing": true,
+      "refinance_frequency": "annually",
+      "target_refinance_ltv": 0.65
+    },
+    {
+      "name": "Balanced Mixed Portfolio",
+      "strategy_type": "mixed",
+      "leveraged_property_ratio": 0.6,
+      "cash_property_ratio": 0.4,
+      "ltv_ratio": 0.7,
+      "interest_rate": 0.10,
+      "loan_term_years": 22,
+      "appreciation_rate": 0.058,
+      "simulation_years": 8,
+      "reinvest_cashflow": true,
+      "enable_refinancing": true,
+      "refinance_frequency": "annually",
+      "target_refinance_ltv": 0.55,
+      "first_property_type": "cash"
+    },
+    {
+      "name": "Conservative Mixed",
+      "strategy_type": "mixed",
+      "leveraged_property_ratio": 0.3,
+      "cash_property_ratio": 0.7,
+      "ltv_ratio": 0.5,
+      "interest_rate": 0.092,
+      "loan_term_years": 30,
+      "appreciation_rate": 0.05,
+      "simulation_years": 8,
+      "reinvest_cashflow": true,
+      "enable_refinancing": false,
+      "first_property_type": "cash"
+    }
+  ]
+}

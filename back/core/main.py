@@ -189,7 +189,7 @@ class PropertyInvestment:
 
 def main():
     """Main function to demonstrate the property investment calculator"""
-    from reports import PropertyInvestmentReporter
+    from .reports import PropertyInvestmentReporter
 
     # Property Acquisition Costs
     acquisition = PropertyAcquisitionCosts(
@@ -240,7 +240,7 @@ def main():
     # STRATEGY SIMULATIONS
     # ==============================================
 
-    from strategies import (
+    from .strategies import (
         AdditionalCapitalFrequency,
         AdditionalCapitalInjection,
         FirstPropertyType,
@@ -388,7 +388,10 @@ def main():
         additional_capital_injections=detailed_capital_injections,
     )
 
-    from strategies import PropertyPortfolioSimulator, print_detailed_simulation_results
+    from .strategies import (
+        PropertyPortfolioSimulator,
+        print_detailed_simulation_results,
+    )
 
     detailed_simulator = PropertyPortfolioSimulator(investment, detailed_strategy)
     detailed_snapshots = detailed_simulator.simulate()

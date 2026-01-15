@@ -1,6 +1,6 @@
 from typing import Optional
 
-from main import FinancingType, PropertyInvestment
+from .main import FinancingType, PropertyInvestment
 
 
 class PropertyInvestmentReporter:
