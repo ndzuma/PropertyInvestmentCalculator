@@ -77,6 +77,51 @@ export interface StrategySummary {
   total_cash_invested: number;
   simulation_ended: boolean;
   end_reason?: string;
+
+  // Enhanced financial metrics
+  total_debt: number;
+  monthly_expenses: number;
+  annual_cashflow: number;
+  rental_yield: number;
+  net_rental_yield: number;
+  cash_on_cash_return: number;
+  return_on_investment: number;
+  total_cost_basis: number;
+  debt_to_equity_ratio: number;
+  loan_to_value_ratio: number;
+  total_annual_rental_income: number;
+  total_annual_expenses: number;
+}
+
+export interface PropertyData {
+  property_id: number;
+  purchase_price: number;
+  current_value: number;
+  loan_amount: number;
+  monthly_payment: number;
+  financing_type: string;
+  months_owned: number;
+  annual_rental_income: number;
+  annual_expenses: number;
+  monthly_cashflow: number;
+  cost_basis: number;
+}
+
+export interface PropertyYields {
+  property_id: number;
+  rental_yield: number;
+  net_rental_yield: number;
+  cash_on_cash_return: number;
+  total_return_yield: number;
+  capital_growth_yield: number;
+}
+
+export interface PortfolioYields {
+  portfolio_rental_yield: number;
+  portfolio_net_rental_yield: number;
+  portfolio_cash_on_cash_return: number;
+  portfolio_capital_growth_yield: number;
+  portfolio_total_return_yield: number;
 }
 
 export interface StrategyResult {
@@ -85,10 +130,26 @@ export interface StrategyResult {
   snapshots: Array<{
     period: number;
     total_property_value: number;
+    total_debt: number;
     total_equity: number;
     monthly_cashflow: number;
+    annual_cashflow: number;
     cash_available: number;
     property_count: number;
+    total_cash_invested: number;
+    monthly_expenses: number;
+    total_annual_rental_income: number;
+    total_annual_expenses: number;
+    rental_yield: number;
+    net_rental_yield: number;
+    cash_on_cash_return: number;
+    return_on_investment: number;
+    total_cost_basis: number;
+    debt_to_equity_ratio: number;
+    loan_to_value_ratio: number;
+    portfolio_yields?: PortfolioYields;
+    properties: PropertyData[];
+    property_yields: PropertyYields[];
   }>;
   events: {
     property_purchases: Array<{

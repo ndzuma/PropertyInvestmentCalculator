@@ -258,8 +258,59 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
             simulator = PropertyPortfolioSimulator(property_investment, strategy_config)
             snapshots = simulator.simulate()
 
-            # Convert results to API format
+            # Convert results to API format with enhanced metrics
             final_snapshot = snapshots[-1]
+
+            # Calculate final metrics
+            final_monthly_expenses = 0
+            final_annual_rental_income = 0
+            final_annual_expenses = 0
+            final_total_cost_basis = 0
+
+            for prop in final_snapshot.properties:
+                final_annual_rental_income += prop.annual_rental_income
+                final_annual_expenses += prop.annual_expenses
+                final_monthly_expenses += prop.annual_expenses / 12
+                final_total_cost_basis += prop.cost_basis
+
+            # Calculate final yield metrics
+            final_rental_yield = (
+                final_annual_rental_income / final_snapshot.total_property_value
+                if final_snapshot.total_property_value > 0
+                else 0
+            )
+            final_net_rental_yield = (
+                (final_annual_rental_income - final_annual_expenses)
+                / final_snapshot.total_property_value
+                if final_snapshot.total_property_value > 0
+                else 0
+            )
+            final_cash_on_cash_return = (
+                final_snapshot.annual_cashflow / final_snapshot.total_cash_invested
+                if final_snapshot.total_cash_invested > 0
+                else 0
+            )
+            final_debt_to_equity_ratio = (
+                final_snapshot.total_debt / final_snapshot.total_equity
+                if final_snapshot.total_equity > 0
+                else 0
+            )
+            final_loan_to_value_ratio = (
+                final_snapshot.total_debt / final_snapshot.total_property_value
+                if final_snapshot.total_property_value > 0
+                else 0
+            )
+
+            # Improved ROI calculation using cost basis
+            # ROI = (Current Equity - Total Cost Basis) / Total Cost Basis
+            # This gives a cleaner view of return on actual cash invested in properties
+            final_return_on_investment = (
+                (final_snapshot.total_equity - final_total_cost_basis)
+                / final_total_cost_basis
+                if final_total_cost_basis > 0
+                else 0
+            )
+
             summary = StrategySummary(
                 final_property_count=len(final_snapshot.properties),
                 final_portfolio_value=final_snapshot.total_property_value,
@@ -268,18 +319,142 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 total_cash_invested=final_snapshot.total_cash_invested,
                 simulation_ended=final_snapshot.simulation_ended,
                 end_reason=final_snapshot.end_reason,
+                # Enhanced financial metrics
+                total_debt=final_snapshot.total_debt,
+                monthly_expenses=final_monthly_expenses,
+                annual_cashflow=final_snapshot.annual_cashflow,
+                rental_yield=final_rental_yield,
+                net_rental_yield=final_net_rental_yield,
+                cash_on_cash_return=final_cash_on_cash_return,
+                return_on_investment=final_return_on_investment,
+                total_cost_basis=final_total_cost_basis,
+                debt_to_equity_ratio=final_debt_to_equity_ratio,
+                loan_to_value_ratio=final_loan_to_value_ratio,
+                total_annual_rental_income=final_annual_rental_income,
+                total_annual_expenses=final_annual_expenses,
             )
 
-            # Convert snapshots to dictionaries
+            # Convert snapshots to dictionaries with comprehensive data
             snapshot_dicts = []
             for snapshot in snapshots:
+                # Calculate additional metrics
+                monthly_expenses = 0
+                total_annual_rental_income = 0
+                total_annual_expenses = 0
+                total_cost_basis = 0
+
+                for prop in snapshot.properties:
+                    total_annual_rental_income += prop.annual_rental_income
+                    total_annual_expenses += prop.annual_expenses
+                    monthly_expenses += prop.annual_expenses / 12
+                    total_cost_basis += prop.cost_basis
+
+                # Calculate yield metrics
+                rental_yield = (
+                    total_annual_rental_income / snapshot.total_property_value
+                    if snapshot.total_property_value > 0
+                    else 0
+                )
+                net_rental_yield = (
+                    (total_annual_rental_income - total_annual_expenses)
+                    / snapshot.total_property_value
+                    if snapshot.total_property_value > 0
+                    else 0
+                )
+                cash_on_cash_return = (
+                    snapshot.annual_cashflow / snapshot.total_cash_invested
+                    if snapshot.total_cash_invested > 0
+                    else 0
+                )
+                debt_to_equity_ratio = (
+                    snapshot.total_debt / snapshot.total_equity
+                    if snapshot.total_equity > 0
+                    else 0
+                )
+                loan_to_value_ratio = (
+                    snapshot.total_debt / snapshot.total_property_value
+                    if snapshot.total_property_value > 0
+                    else 0
+                )
+
+                # Improved ROI calculation using cost basis
+                return_on_investment = (
+                    (snapshot.total_equity - total_cost_basis) / total_cost_basis
+                    if total_cost_basis > 0
+                    else 0
+                )
+
                 snapshot_dict = {
                     "period": snapshot.period,
                     "total_property_value": snapshot.total_property_value,
+                    "total_debt": snapshot.total_debt,
                     "total_equity": snapshot.total_equity,
                     "monthly_cashflow": snapshot.monthly_cashflow,
+                    "annual_cashflow": snapshot.annual_cashflow,
                     "cash_available": snapshot.cash_available,
                     "property_count": len(snapshot.properties),
+                    "total_cash_invested": snapshot.total_cash_invested,
+                    "monthly_expenses": monthly_expenses,
+                    "total_annual_rental_income": total_annual_rental_income,
+                    "total_annual_expenses": total_annual_expenses,
+                    "rental_yield": rental_yield,
+                    "net_rental_yield": net_rental_yield,
+                    "cash_on_cash_return": cash_on_cash_return,
+                    "return_on_investment": return_on_investment,
+                    "total_cost_basis": total_cost_basis,
+                    "debt_to_equity_ratio": debt_to_equity_ratio,
+                    "loan_to_value_ratio": loan_to_value_ratio,
+                    # Portfolio yields if available
+                    "portfolio_yields": {
+                        "portfolio_rental_yield": snapshot.portfolio_yields.portfolio_rental_yield
+                        if snapshot.portfolio_yields
+                        else 0,
+                        "portfolio_net_rental_yield": snapshot.portfolio_yields.portfolio_net_rental_yield
+                        if snapshot.portfolio_yields
+                        else 0,
+                        "portfolio_cash_on_cash_return": snapshot.portfolio_yields.portfolio_cash_on_cash_return
+                        if snapshot.portfolio_yields
+                        else 0,
+                        "portfolio_capital_growth_yield": snapshot.portfolio_yields.portfolio_capital_growth_yield
+                        if snapshot.portfolio_yields
+                        else 0,
+                        "portfolio_total_return_yield": snapshot.portfolio_yields.portfolio_total_return_yield
+                        if snapshot.portfolio_yields
+                        else 0,
+                    }
+                    if snapshot.portfolio_yields
+                    else None,
+                    # Individual property data
+                    "properties": [
+                        {
+                            "property_id": prop.property_id,
+                            "purchase_price": prop.purchase_price,
+                            "current_value": prop.current_value,
+                            "loan_amount": prop.loan_amount,
+                            "monthly_payment": prop.monthly_payment,
+                            "financing_type": prop.financing_type,
+                            "months_owned": prop.months_owned,
+                            "annual_rental_income": prop.annual_rental_income,
+                            "annual_expenses": prop.annual_expenses,
+                            "monthly_cashflow": prop.monthly_cashflow,
+                            "cost_basis": prop.cost_basis,
+                        }
+                        for prop in snapshot.properties
+                    ],
+                    # Property yields if available
+                    "property_yields": [
+                        {
+                            "property_id": yield_data.property_id,
+                            "rental_yield": yield_data.rental_yield,
+                            "net_rental_yield": yield_data.net_rental_yield,
+                            "cash_on_cash_return": yield_data.cash_on_cash_return,
+                            "total_return_yield": yield_data.total_return_yield,
+                            "capital_growth_yield": yield_data.capital_growth_yield,
+                        }
+                        for yield_data in snapshot.property_yields
+                    ]
+                    if snapshot.property_yields
+                    else [],
                 }
                 snapshot_dicts.append(snapshot_dict)
 

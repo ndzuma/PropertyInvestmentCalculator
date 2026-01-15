@@ -96,6 +96,20 @@ class StrategySummary(BaseModel):
     simulation_ended: bool = False
     end_reason: Optional[str] = None
 
+    # Enhanced financial metrics
+    total_debt: float
+    monthly_expenses: float
+    annual_cashflow: float
+    rental_yield: float
+    net_rental_yield: float
+    cash_on_cash_return: float
+    return_on_investment: float
+    total_cost_basis: float
+    debt_to_equity_ratio: float
+    loan_to_value_ratio: float
+    total_annual_rental_income: float
+    total_annual_expenses: float
+
 
 class StrategyResult(BaseModel):
     strategy_name: str

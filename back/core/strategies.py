@@ -84,6 +84,7 @@ class PropertyData:
     annual_rental_income: float
     annual_expenses: float
     monthly_cashflow: float
+    cost_basis: float  # Total cash invested: purchase_price + all acquisition costs
 
 
 @dataclass
@@ -343,6 +344,15 @@ class PropertyPortfolioSimulator:
             self.end_reason = f"Insufficient cash to buy first property. Need R{cash_required:,.0f}, have R{available_cash:,.0f}"
             return portfolio
 
+        # Calculate cost basis (total cash invested in property)
+        cost_basis = (
+            self.base_property.acquisition_costs.purchase_price
+            + self.base_property.acquisition_costs.transfer_duty
+            + self.base_property.acquisition_costs.conveyancing_fees
+            + self.base_property.acquisition_costs.bond_registration
+            + self.base_property.acquisition_costs.furnishing_cost
+        )
+
         # Create first property
         property_data = PropertyData(
             property_id=0,
@@ -355,6 +365,7 @@ class PropertyPortfolioSimulator:
             annual_rental_income=self.base_property.operating.annual_rental_income,
             annual_expenses=self._calculate_annual_expenses(),
             monthly_cashflow=self._calculate_monthly_cashflow(),
+            cost_basis=cost_basis,
         )
 
         portfolio = {
@@ -557,6 +568,15 @@ class PropertyPortfolioSimulator:
                 else:
                     monthly_payment = 0
 
+                # Calculate cost basis (total cash invested in property)
+                cost_basis = (
+                    purchase_price
+                    + self.base_property.acquisition_costs.transfer_duty
+                    + self.base_property.acquisition_costs.conveyancing_fees
+                    + self.base_property.acquisition_costs.bond_registration
+                    + self.base_property.acquisition_costs.furnishing_cost
+                )
+
                 # Create new property
                 new_property = PropertyData(
                     property_id=portfolio["property_counter"],
@@ -569,6 +589,7 @@ class PropertyPortfolioSimulator:
                     annual_rental_income=self.base_property.operating.annual_rental_income,
                     annual_expenses=self._calculate_annual_expenses(),
                     monthly_cashflow=self._calculate_monthly_cashflow(),
+                    cost_basis=cost_basis,
                 )
 
                 # Create purchase event
