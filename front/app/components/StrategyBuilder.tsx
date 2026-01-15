@@ -34,7 +34,7 @@ export default function StrategyBuilder({
     name: "",
     strategy_type: "cash_only",
     simulation_years: 10,
-    reinvest_cashflow: true,
+    reinvest_cashflow: false,
     enable_refinancing: false,
     refinance_frequency: "never",
   });
@@ -64,7 +64,7 @@ export default function StrategyBuilder({
 
   const updateStrategy = (
     field: keyof StrategyRequest,
-    value: string | number | boolean,
+    value: string | number | boolean | undefined,
   ) => {
     setStrategy((prev) => ({
       ...prev,
@@ -79,7 +79,7 @@ export default function StrategyBuilder({
         name: preset.name,
         strategy_type: preset.strategy_type,
         simulation_years: 10,
-        reinvest_cashflow: true,
+        reinvest_cashflow: false,
         enable_refinancing: false,
         refinance_frequency: "never",
         ...preset.config,
@@ -141,7 +141,7 @@ export default function StrategyBuilder({
       name: "",
       strategy_type: "cash_only",
       simulation_years: 10,
-      reinvest_cashflow: true,
+      reinvest_cashflow: false,
       enable_refinancing: false,
       refinance_frequency: "never",
     });
@@ -166,7 +166,7 @@ export default function StrategyBuilder({
             disabled={loadingPresets}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Create new strategy" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {presets.map((preset) => (
@@ -225,9 +225,12 @@ export default function StrategyBuilder({
                 <InputGroup>
                   <InputGroupInput
                     type="number"
-                    value={strategy.ltv_ratio || 0}
+                    value={strategy.ltv_ratio || ""}
                     onChange={(e) =>
-                      updateStrategy("ltv_ratio", Number(e.target.value))
+                      updateStrategy(
+                        "ltv_ratio",
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
                     }
                     min="0"
                     max="0.99"
@@ -246,12 +249,14 @@ export default function StrategyBuilder({
                   <InputGroupInput
                     type="number"
                     value={
-                      strategy.interest_rate ? strategy.interest_rate * 100 : 0
+                      strategy.interest_rate ? strategy.interest_rate * 100 : ""
                     }
                     onChange={(e) =>
                       updateStrategy(
                         "interest_rate",
-                        Number(e.target.value) / 100,
+                        e.target.value
+                          ? Number(e.target.value) / 100
+                          : undefined,
                       )
                     }
                     min="0"
@@ -271,9 +276,12 @@ export default function StrategyBuilder({
                 <InputGroup>
                   <InputGroupInput
                     type="number"
-                    value={strategy.loan_term_years || 20}
+                    value={strategy.loan_term_years || ""}
                     onChange={(e) =>
-                      updateStrategy("loan_term_years", Number(e.target.value))
+                      updateStrategy(
+                        "loan_term_years",
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
                     }
                     min="1"
                     max="50"
@@ -293,12 +301,14 @@ export default function StrategyBuilder({
                     value={
                       strategy.appreciation_rate
                         ? strategy.appreciation_rate * 100
-                        : 6
+                        : ""
                     }
                     onChange={(e) =>
                       updateStrategy(
                         "appreciation_rate",
-                        Number(e.target.value) / 100,
+                        e.target.value
+                          ? Number(e.target.value) / 100
+                          : undefined,
                       )
                     }
                     min="0"
@@ -326,12 +336,14 @@ export default function StrategyBuilder({
                     value={
                       strategy.leveraged_property_ratio
                         ? strategy.leveraged_property_ratio * 100
-                        : 60
+                        : ""
                     }
                     onChange={(e) =>
                       updateStrategy(
                         "leveraged_property_ratio",
-                        Number(e.target.value) / 100,
+                        e.target.value
+                          ? Number(e.target.value) / 100
+                          : undefined,
                       )
                     }
                     min="0"
@@ -353,12 +365,14 @@ export default function StrategyBuilder({
                     value={
                       strategy.cash_property_ratio
                         ? strategy.cash_property_ratio * 100
-                        : 40
+                        : ""
                     }
                     onChange={(e) =>
                       updateStrategy(
                         "cash_property_ratio",
-                        Number(e.target.value) / 100,
+                        e.target.value
+                          ? Number(e.target.value) / 100
+                          : undefined,
                       )
                     }
                     min="0"
@@ -450,12 +464,14 @@ export default function StrategyBuilder({
                       value={
                         strategy.target_refinance_ltv
                           ? strategy.target_refinance_ltv * 100
-                          : 60
+                          : ""
                       }
                       onChange={(e) =>
                         updateStrategy(
                           "target_refinance_ltv",
-                          Number(e.target.value) / 100,
+                          e.target.value
+                            ? Number(e.target.value) / 100
+                            : undefined,
                         )
                       }
                       min="0"

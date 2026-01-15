@@ -24,7 +24,7 @@ export type CapitalInjectionFrequency =
   | "one_time";
 
 export interface CapitalInjectionRequest {
-  amount: number;
+  amount?: number;
   frequency: CapitalInjectionFrequency;
   start_period: number;
   end_period?: number;
@@ -32,7 +32,11 @@ export interface CapitalInjectionRequest {
 }
 
 export type StrategyType = "cash_only" | "leveraged" | "mixed";
-export type RefineFrequency = "never" | "annually" | "bi_annually" | "quarterly";
+export type RefineFrequency =
+  | "never"
+  | "annually"
+  | "bi_annually"
+  | "quarterly";
 
 export interface StrategyRequest {
   name: string;

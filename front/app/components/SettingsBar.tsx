@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/select";
 
 interface SettingsBarProps {
-  availableCapital: number;
-  setAvailableCapital: (value: number) => void;
+  availableCapital: number | undefined;
+  setAvailableCapital: (value: number | undefined) => void;
   simulationYears: number;
   setSimulationYears: (value: number) => void;
   currency: string;
@@ -48,8 +48,12 @@ export default function SettingsBar({
               <InputGroupAddon>{currency}</InputGroupAddon>
               <InputGroupInput
                 type="number"
-                value={availableCapital}
-                onChange={(e) => setAvailableCapital(Number(e.target.value))}
+                value={availableCapital || ""}
+                onChange={(e) =>
+                  setAvailableCapital(
+                    e.target.value ? Number(e.target.value) : undefined,
+                  )
+                }
                 min="0"
               />
             </InputGroup>

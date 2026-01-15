@@ -32,18 +32,18 @@ export default function CapitalInjections({
   currency,
 }: CapitalInjectionsProps) {
   const [newInjection, setNewInjection] = useState<CapitalInjectionRequest>({
-    amount: 0,
+    amount: undefined,
     frequency: "monthly",
     start_period: 1,
     end_period: undefined,
     specific_periods: undefined,
   });
 
-  const [showSpecificPeriods, setShowSpecificPeriods] = useState(false);
+  const [, setShowSpecificPeriods] = useState(false);
   const [specificPeriodsInput, setSpecificPeriodsInput] = useState("");
 
   const addInjection = () => {
-    if (newInjection.amount <= 0) return;
+    if (!newInjection.amount || newInjection.amount <= 0) return;
 
     const injection: CapitalInjectionRequest = {
       ...newInjection,
@@ -60,7 +60,7 @@ export default function CapitalInjections({
 
     // Reset form
     setNewInjection({
-      amount: 0,
+      amount: undefined,
       frequency: "monthly",
       start_period: 1,
       end_period: undefined,
@@ -92,7 +92,7 @@ export default function CapitalInjections({
   };
 
   const formatInjectionDescription = (injection: CapitalInjectionRequest) => {
-    let description = `${currency}${injection.amount.toLocaleString()} - ${formatFrequency(injection.frequency)}`;
+    let description = `${currency}${injection.amount?.toLocaleString() || 0} - ${formatFrequency(injection.frequency)}`;
 
     if (injection.frequency === "one_time" && injection.specific_periods) {
       description += ` (Periods: ${injection.specific_periods.join(", ")})`;
@@ -127,11 +127,11 @@ export default function CapitalInjections({
               <InputGroupAddon>{currency}</InputGroupAddon>
               <InputGroupInput
                 type="number"
-                value={newInjection.amount}
+                value={newInjection.amount || ""}
                 onChange={(e) =>
                   setNewInjection({
                     ...newInjection,
-                    amount: Number(e.target.value),
+                    amount: e.target.value ? Number(e.target.value) : undefined,
                   })
                 }
                 min="0"
@@ -224,7 +224,7 @@ export default function CapitalInjections({
 
         <Button
           onClick={addInjection}
-          disabled={newInjection.amount <= 0}
+          disabled={!newInjection.amount || newInjection.amount <= 0}
           variant="default"
         >
           Add Capital Injection
@@ -264,7 +264,7 @@ export default function CapitalInjections({
                 Total Ongoing Injections: {currency}
                 {capitalInjections
                   .filter((inj) => inj.frequency !== "one_time")
-                  .reduce((sum, inj) => sum + inj.amount, 0)
+                  .reduce((sum, inj) => sum + (inj.amount || 0), 0)
                   .toLocaleString()}{" "}
                 per period
               </strong>
@@ -277,7 +277,8 @@ export default function CapitalInjections({
                     .filter((inj) => inj.frequency === "one_time")
                     .reduce(
                       (sum, inj) =>
-                        sum + inj.amount * (inj.specific_periods?.length || 1),
+                        sum +
+                        (inj.amount || 0) * (inj.specific_periods?.length || 1),
                       0,
                     )
                     .toLocaleString()}

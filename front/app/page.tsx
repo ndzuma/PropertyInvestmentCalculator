@@ -21,28 +21,30 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   // Settings state
-  const [availableCapital, setAvailableCapital] = useState(500000);
+  const [availableCapital, setAvailableCapital] = useState<number | undefined>(
+    undefined,
+  );
   const [simulationYears, setSimulationYears] = useState(10);
   const [currency, setCurrency] = useState("R");
 
   // Property state
   const [property, setProperty] = useState<PropertyRequest>({
-    purchase_price: 1200000,
-    transfer_duty: 15000,
-    conveyancing_fees: 20000,
-    bond_registration: 18000,
-    furnishing_cost: 60000,
+    purchase_price: 0,
+    transfer_duty: 0,
+    conveyancing_fees: 0,
+    bond_registration: 0,
+    furnishing_cost: 0,
   });
 
   // Operating state
   const [operating, setOperating] = useState<OperatingRequest>({
-    monthly_rental_income: 14000,
-    vacancy_rate: 0.05,
-    monthly_levies: 1800,
-    property_management_fee_rate: 0.08,
-    monthly_insurance: 700,
-    monthly_maintenance_reserve: 900,
-    monthly_furnishing_repair_costs: 400,
+    monthly_rental_income: 0,
+    vacancy_rate: 0,
+    monthly_levies: 0,
+    property_management_fee_rate: 0,
+    monthly_insurance: 0,
+    monthly_maintenance_reserve: 0,
+    monthly_furnishing_repair_costs: 0,
   });
 
   // Capital injections state
@@ -86,7 +88,7 @@ export default function Home() {
       const request: SimulationRequest = {
         property,
         operating,
-        available_capital: availableCapital,
+        available_capital: availableCapital || 0,
         capital_injections: capitalInjections,
         strategies,
       };
