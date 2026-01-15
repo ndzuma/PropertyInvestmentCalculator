@@ -41,7 +41,7 @@ export type RefineFrequency =
 export interface StrategyRequest {
   name: string;
   strategy_type: StrategyType;
-  simulation_years: number;
+  simulation_months: number;
   reinvest_cashflow: boolean;
 
   // Leveraged strategy parameters

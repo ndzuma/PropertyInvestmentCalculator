@@ -24,7 +24,7 @@ export default function Home() {
   const [availableCapital, setAvailableCapital] = useState<number | undefined>(
     undefined,
   );
-  const [simulationYears, setSimulationYears] = useState(10);
+  const [simulationMonths, setSimulationMonths] = useState(120); // 10 years = 120 months
   const [currency, setCurrency] = useState("R");
 
   // Property state
@@ -63,12 +63,12 @@ export default function Home() {
   const [simulationError, setSimulationError] = useState<string>();
 
   const addStrategy = (strategy: StrategyRequest) => {
-    // Override simulation years with global setting
-    const strategyWithYears = {
+    // Override simulation months with global setting
+    const strategyWithMonths = {
       ...strategy,
-      simulation_years: simulationYears,
+      simulation_months: simulationMonths,
     };
-    setStrategies([...strategies, strategyWithYears]);
+    setStrategies([...strategies, strategyWithMonths]);
   };
 
   const removeStrategy = (index: number) => {
@@ -108,6 +108,7 @@ export default function Home() {
       const data: SimulationResponse = await response.json();
 
       if (data.success) {
+        console.log("Simulation API response:", data); // TODO: Remove after testing
         setSimulationResults(data.results);
       } else {
         setSimulationError(data.error || "Simulation failed");
@@ -139,8 +140,8 @@ export default function Home() {
         <SettingsBar
           availableCapital={availableCapital}
           setAvailableCapital={setAvailableCapital}
-          simulationYears={simulationYears}
-          setSimulationYears={setSimulationYears}
+          simulationMonths={simulationMonths}
+          setSimulationMonths={setSimulationMonths}
           currency={currency}
           setCurrency={setCurrency}
         />

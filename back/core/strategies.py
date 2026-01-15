@@ -63,8 +63,8 @@ class StrategyConfig:
         1.0  # 1.0 = yearly, 0.5 = 6 months, 3.0 = 3 years
     )
     enable_reinvestment: bool = True
-    tracking_frequency: TrackingFrequency = TrackingFrequency.YEARLY
-    simulation_years: int = 10
+    tracking_frequency: TrackingFrequency = TrackingFrequency.MONTHLY
+    simulation_months: int = 120  # Default 10 years = 120 months
 
     # Additional capital injection parameters
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None
@@ -191,7 +191,7 @@ class PropertyPortfolioSimulator:
         """Run the complete simulation and return detailed snapshots"""
 
         # ALWAYS run monthly for accuracy, filter results by tracking frequency
-        total_monthly_periods = self.strategy.simulation_years * 12
+        total_monthly_periods = self.strategy.simulation_months
 
         # Run monthly simulation
         all_monthly_snapshots = self._run_monthly_simulation(total_monthly_periods)
@@ -280,36 +280,8 @@ class PropertyPortfolioSimulator:
     def _filter_snapshots_by_frequency(
         self, monthly_snapshots: List[SimulationSnapshot]
     ) -> List[SimulationSnapshot]:
-        """Filter monthly snapshots based on requested tracking frequency"""
-        if self.strategy.tracking_frequency == TrackingFrequency.MONTHLY:
-            return monthly_snapshots
-        else:  # YEARLY
-            # Return snapshots for periods 0, 12, 24, 36, etc.
-            filtered = [monthly_snapshots[0]]  # Always include initial snapshot
-            for i in range(12, len(monthly_snapshots), 12):
-                # Update period number to be yearly (1, 2, 3, etc.)
-                snapshot = monthly_snapshots[i]
-                yearly_snapshot = SimulationSnapshot(
-                    period=i // 12,
-                    properties=snapshot.properties,
-                    total_property_value=snapshot.total_property_value,
-                    total_debt=snapshot.total_debt,
-                    total_equity=snapshot.total_equity,
-                    cash_available=snapshot.cash_available,
-                    monthly_cashflow=snapshot.monthly_cashflow,
-                    annual_cashflow=snapshot.annual_cashflow,
-                    total_cash_invested=snapshot.total_cash_invested,
-                    total_additional_capital_injected=snapshot.total_additional_capital_injected,
-                    refinancing_events=snapshot.refinancing_events,
-                    property_purchases=snapshot.property_purchases,
-                    capital_injections=snapshot.capital_injections,
-                    property_yields=snapshot.property_yields,
-                    portfolio_yields=snapshot.portfolio_yields,
-                    simulation_ended=snapshot.simulation_ended,
-                    end_reason=snapshot.end_reason,
-                )
-                filtered.append(yearly_snapshot)
-            return filtered
+        """Return monthly snapshots since we're now tracking monthly"""
+        return monthly_snapshots
 
     def _initialize_portfolio(self) -> Dict[str, Any]:
         """Initialize the portfolio with the first property"""
@@ -1067,8 +1039,8 @@ class PropertyPortfolioSimulator:
 
 def create_cash_strategy(
     reinvestment: bool = True,
-    tracking: TrackingFrequency = TrackingFrequency.YEARLY,
-    years: int = 10,
+    tracking: TrackingFrequency = TrackingFrequency.MONTHLY,
+    months: int = 120,
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None,
 ) -> StrategyConfig:
     """Create a cash-only strategy"""
@@ -1082,7 +1054,7 @@ def create_cash_strategy(
         enable_refinancing=False,
         enable_reinvestment=reinvestment,
         tracking_frequency=tracking,
-        simulation_years=years,
+        simulation_months=months,
         additional_capital_injections=additional_capital_injections or [],
     )
 
@@ -1092,8 +1064,8 @@ def create_leveraged_strategy(
     refinancing: bool = True,
     refinance_years: float = 1.0,
     reinvestment: bool = True,
-    tracking: TrackingFrequency = TrackingFrequency.YEARLY,
-    years: int = 10,
+    tracking: TrackingFrequency = TrackingFrequency.MONTHLY,
+    months: int = 120,
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None,
 ) -> StrategyConfig:
     """Create a leveraged strategy"""
@@ -1108,7 +1080,7 @@ def create_leveraged_strategy(
         refinance_frequency_years=refinance_years,
         enable_reinvestment=reinvestment,
         tracking_frequency=tracking,
-        simulation_years=years,
+        simulation_months=months,
         additional_capital_injections=additional_capital_injections or [],
     )
 
@@ -1121,16 +1093,21 @@ def create_mixed_strategy(
     refinancing: bool = True,
     refinance_years: float = 1.0,
     reinvestment: bool = True,
-    tracking: TrackingFrequency = TrackingFrequency.YEARLY,
-    years: int = 10,
+    tracking: TrackingFrequency = TrackingFrequency.MONTHLY,
+    months: int = 120,
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None,
 ) -> StrategyConfig:
     """Create a mixed strategy with both leveraged and cash properties"""
 
+    if leveraged_property_ratio + cash_property_ratio != 1.0:
+        raise ValueError(
+            f"Property ratios must sum to 1.0, got: {leveraged_property_ratio + cash_property_ratio}"
+        )
+
     return StrategyConfig(
         strategy_type=StrategyType.MIXED,
         leverage_ratio=leverage_ratio,
-        cash_ratio=1.0 - leverage_ratio,  # For individual leveraged properties
+        cash_ratio=1.0 - leverage_ratio,
         leveraged_property_ratio=leveraged_property_ratio,
         cash_property_ratio=cash_property_ratio,
         first_property_type=first_property_type,
@@ -1138,7 +1115,7 @@ def create_mixed_strategy(
         refinance_frequency_years=refinance_years,
         enable_reinvestment=reinvestment,
         tracking_frequency=tracking,
-        simulation_years=years,
+        simulation_months=months,
         additional_capital_injections=additional_capital_injections or [],
     )
 

@@ -33,7 +33,7 @@ export default function StrategyBuilder({
   const [strategy, setStrategy] = useState<StrategyRequest>({
     name: "",
     strategy_type: "cash_only",
-    simulation_years: 10,
+    simulation_months: 120, // 10 years = 120 months
     reinvest_cashflow: false,
     enable_refinancing: false,
     refinance_frequency: "never",
@@ -78,7 +78,7 @@ export default function StrategyBuilder({
       setStrategy({
         name: preset.name,
         strategy_type: preset.strategy_type,
-        simulation_years: 10,
+        simulation_months: 120, // 10 years = 120 months
         reinvest_cashflow: false,
         enable_refinancing: false,
         refinance_frequency: "never",
@@ -140,7 +140,7 @@ export default function StrategyBuilder({
     setStrategy({
       name: "",
       strategy_type: "cash_only",
-      simulation_years: 10,
+      simulation_months: 120, // 10 years = 120 months
       reinvest_cashflow: false,
       enable_refinancing: false,
       refinance_frequency: "never",

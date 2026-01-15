@@ -12,7 +12,7 @@ def get_strategy_presets() -> List[StrategyPreset]:
             strategy_type=StrategyTypeEnum.CASH_ONLY,
             config={
                 "strategy_type": "cash_only",
-                "simulation_years": 10,
+                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
             },
         ),
@@ -26,7 +26,7 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "interest_rate": 0.10,
                 "loan_term_years": 20,
                 "appreciation_rate": 0.06,
-                "simulation_years": 10,
+                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
                 "refinance_frequency": "annually",
@@ -43,7 +43,7 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "interest_rate": 0.105,
                 "loan_term_years": 20,
                 "appreciation_rate": 0.06,
-                "simulation_years": 10,
+                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
                 "refinance_frequency": "annually",
@@ -62,12 +62,12 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "interest_rate": 0.10,
                 "loan_term_years": 20,
                 "appreciation_rate": 0.06,
-                "simulation_years": 10,
+                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
                 "refinance_frequency": "annually",
-                "target_refinance_ltv": 0.55,
-                "first_property_type": "cash",
+                "target_refinance_ltv": 0.6,
+                "first_property_type": "leveraged",
             },
         ),
         StrategyPreset(
@@ -82,9 +82,10 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "interest_rate": 0.095,
                 "loan_term_years": 25,
                 "appreciation_rate": 0.055,
-                "simulation_years": 10,
+                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": False,
+                "refinance_frequency": "never",
                 "first_property_type": "cash",
             },
         ),

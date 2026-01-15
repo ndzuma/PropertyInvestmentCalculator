@@ -54,7 +54,7 @@ export default function StrategyList({
       }
     }
 
-    details.push(`${strategy.simulation_years} years`);
+    details.push(`${Math.round(strategy.simulation_months / 12)} years`);
 
     if (strategy.reinvest_cashflow) {
       details.push("Reinvesting");

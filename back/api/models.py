@@ -59,7 +59,7 @@ class CapitalInjectionRequest(BaseModel):
 class StrategyRequest(BaseModel):
     name: str
     strategy_type: StrategyTypeEnum
-    simulation_years: int = 10
+    simulation_months: int = 120  # Default 10 years = 120 months
     reinvest_cashflow: bool = True
 
     # Leveraged strategy parameters

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -17,8 +18,8 @@ import {
 interface SettingsBarProps {
   availableCapital: number | undefined;
   setAvailableCapital: (value: number | undefined) => void;
-  simulationYears: number;
-  setSimulationYears: (value: number) => void;
+  simulationMonths: number;
+  setSimulationMonths: (value: number) => void;
   currency: string;
   setCurrency: (value: string) => void;
 }
@@ -26,11 +27,27 @@ interface SettingsBarProps {
 export default function SettingsBar({
   availableCapital,
   setAvailableCapital,
-  simulationYears,
-  setSimulationYears,
+  simulationMonths,
+  setSimulationMonths,
   currency,
   setCurrency,
 }: SettingsBarProps) {
+  const [periodUnit, setPeriodUnit] = useState<"months" | "years">("years");
+
+  const getPeriodValue = () => {
+    if (periodUnit === "years") {
+      return Math.round(simulationMonths / 12);
+    }
+    return simulationMonths;
+  };
+
+  const setPeriodValue = (value: number) => {
+    if (periodUnit === "years") {
+      setSimulationMonths(value * 12);
+    } else {
+      setSimulationMonths(value);
+    }
+  };
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
       <div className="flex flex-col gap-4">
@@ -59,21 +76,37 @@ export default function SettingsBar({
             </InputGroup>
           </div>
 
-          {/* Simulation Years */}
+          {/* Simulation Period */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Simulation Period
             </label>
-            <InputGroup>
-              <InputGroupInput
-                type="number"
-                value={simulationYears}
-                onChange={(e) => setSimulationYears(Number(e.target.value))}
-                min="1"
-                max="50"
-              />
-              <InputGroupAddon align="inline-end">years</InputGroupAddon>
-            </InputGroup>
+            <div className="space-y-2">
+              <Select
+                value={periodUnit}
+                onValueChange={setPeriodUnit as (value: string) => void}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="months">Months</SelectItem>
+                  <SelectItem value="years">Years</SelectItem>
+                </SelectContent>
+              </Select>
+              <InputGroup>
+                <InputGroupInput
+                  type="number"
+                  value={getPeriodValue()}
+                  onChange={(e) => setPeriodValue(Number(e.target.value))}
+                  min="1"
+                  max={periodUnit === "years" ? 50 : 600}
+                />
+                <InputGroupAddon align="inline-end">
+                  {periodUnit}
+                </InputGroupAddon>
+              </InputGroup>
+            </div>
           </div>
 
           {/* Currency */}

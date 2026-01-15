@@ -170,8 +170,8 @@ def create_strategy_config(
     if strategy_request.strategy_type == "cash_only":
         return create_cash_strategy(
             reinvestment=strategy_request.reinvest_cashflow,
-            tracking=TrackingFrequency.YEARLY,
-            years=strategy_request.simulation_years,
+            tracking=TrackingFrequency.MONTHLY,
+            months=strategy_request.simulation_months,
             additional_capital_injections=capital_injections,
         )
 
@@ -181,8 +181,8 @@ def create_strategy_config(
             refinancing=strategy_request.enable_refinancing,
             refinance_years=1.0,  # Default to yearly
             reinvestment=strategy_request.reinvest_cashflow,
-            tracking=TrackingFrequency.YEARLY,
-            years=strategy_request.simulation_years,
+            tracking=TrackingFrequency.MONTHLY,
+            months=strategy_request.simulation_months,
             additional_capital_injections=capital_injections,
         )
 
@@ -201,8 +201,8 @@ def create_strategy_config(
             refinancing=strategy_request.enable_refinancing,
             refinance_years=1.0,  # Default to yearly
             reinvestment=strategy_request.reinvest_cashflow,
-            tracking=TrackingFrequency.YEARLY,
-            years=strategy_request.simulation_years,
+            tracking=TrackingFrequency.MONTHLY,
+            months=strategy_request.simulation_months,
             additional_capital_injections=capital_injections,
         )
 
