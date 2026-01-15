@@ -5,6 +5,20 @@ import {
   CapitalInjectionRequest,
   CapitalInjectionFrequency,
 } from "../types/api";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 interface CapitalInjectionsProps {
   capitalInjections: CapitalInjectionRequest[];
@@ -109,11 +123,9 @@ export default function CapitalInjections({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Amount
             </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                {currency}
-              </span>
-              <input
+            <InputGroup>
+              <InputGroupAddon>{currency}</InputGroupAddon>
+              <InputGroupInput
                 type="number"
                 value={newInjection.amount}
                 onChange={(e) =>
@@ -122,11 +134,9 @@ export default function CapitalInjections({
                     amount: Number(e.target.value),
                   })
                 }
-                className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                placeholder="5000"
                 min="0"
               />
-            </div>
+            </InputGroup>
           </div>
 
           {/* Frequency */}
@@ -134,21 +144,24 @@ export default function CapitalInjections({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Frequency
             </label>
-            <select
+            <Select
               value={newInjection.frequency}
-              onChange={(e) => {
-                const freq = e.target.value as CapitalInjectionFrequency;
-                setNewInjection({ ...newInjection, frequency: freq });
-                setShowSpecificPeriods(freq === "one_time");
+              onValueChange={(value: CapitalInjectionFrequency) => {
+                setNewInjection({ ...newInjection, frequency: value });
+                setShowSpecificPeriods(value === "one_time");
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             >
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="yearly">Yearly</option>
-              <option value="five_yearly">Every 5 Years</option>
-              <option value="one_time">One-time</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+                <SelectItem value="five_yearly">Every 5 Years</SelectItem>
+                <SelectItem value="one_time">One-time</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -158,12 +171,10 @@ export default function CapitalInjections({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Specific Periods (comma-separated)
             </label>
-            <input
+            <Input
               type="text"
               value={specificPeriodsInput}
               onChange={(e) => setSpecificPeriodsInput(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="24, 48, 60"
             />
             <p className="text-xs text-gray-500 mt-1">
               Example: 24, 48 (for periods 24 and 48)
@@ -176,7 +187,7 @@ export default function CapitalInjections({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Start Period
               </label>
-              <input
+              <Input
                 type="number"
                 value={newInjection.start_period}
                 onChange={(e) =>
@@ -185,8 +196,6 @@ export default function CapitalInjections({
                     start_period: Number(e.target.value),
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                placeholder="1"
                 min="1"
               />
             </div>
@@ -196,7 +205,7 @@ export default function CapitalInjections({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 End Period (Optional)
               </label>
-              <input
+              <Input
                 type="number"
                 value={newInjection.end_period || ""}
                 onChange={(e) =>
@@ -207,21 +216,19 @@ export default function CapitalInjections({
                       : undefined,
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                placeholder="Leave empty for ongoing"
                 min="1"
               />
             </div>
           </div>
         )}
 
-        <button
+        <Button
           onClick={addInjection}
           disabled={newInjection.amount <= 0}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          variant="default"
         >
           Add Capital Injection
-        </button>
+        </Button>
       </div>
 
       {/* Existing Injections List */}
@@ -239,12 +246,13 @@ export default function CapitalInjections({
                 <span className="text-sm text-gray-700">
                   {formatInjectionDescription(injection)}
                 </span>
-                <button
+                <Button
                   onClick={() => removeInjection(index)}
-                  className="px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition-colors"
+                  variant="destructive"
+                  size="sm"
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             ))}
           </div>

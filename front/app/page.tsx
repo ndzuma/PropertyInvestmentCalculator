@@ -17,6 +17,7 @@ import CapitalInjections from "./components/CapitalInjections";
 import StrategyBuilder from "./components/StrategyBuilder";
 import StrategyList from "./components/StrategyList";
 import SimulationResults from "./components/SimulationResults";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   // Settings state
@@ -178,10 +179,11 @@ export default function Home() {
 
       {/* Simulate Button */}
       <div className="text-center mb-8">
-        <button
+        <Button
           onClick={runSimulation}
           disabled={isSimulating || strategies.length === 0}
-          className="px-8 py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-lg"
+          size="lg"
+          className="px-8 py-4 text-lg font-semibold shadow-lg bg-green-600 hover:bg-green-700"
         >
           {isSimulating ? (
             <span className="flex items-center">
@@ -193,7 +195,7 @@ export default function Home() {
               strategies.length === 1 ? "y" : "ies"
             }`
           )}
-        </button>
+        </Button>
         {strategies.length === 0 && (
           <p className="text-gray-500 text-sm mt-2">
             Add at least one strategy to enable simulation

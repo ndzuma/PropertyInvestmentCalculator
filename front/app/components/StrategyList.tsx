@@ -1,6 +1,7 @@
 "use client";
 
 import { StrategyRequest } from "../types/api";
+import { Button } from "@/components/ui/button";
 
 interface StrategyListProps {
   strategies: StrategyRequest[];
@@ -27,7 +28,10 @@ export default function StrategyList({
   const getStrategyDetails = (strategy: StrategyRequest) => {
     const details: string[] = [];
 
-    if (strategy.strategy_type === "leveraged" || strategy.strategy_type === "mixed") {
+    if (
+      strategy.strategy_type === "leveraged" ||
+      strategy.strategy_type === "mixed"
+    ) {
       if (strategy.ltv_ratio) {
         details.push(`LTV: ${(strategy.ltv_ratio * 100).toFixed(0)}%`);
       }
@@ -42,7 +46,7 @@ export default function StrategyList({
     if (strategy.strategy_type === "mixed") {
       if (strategy.leveraged_property_ratio && strategy.cash_property_ratio) {
         details.push(
-          `Split: ${(strategy.leveraged_property_ratio * 100).toFixed(0)}% Leveraged / ${(strategy.cash_property_ratio * 100).toFixed(0)}% Cash`
+          `Split: ${(strategy.leveraged_property_ratio * 100).toFixed(0)}% Leveraged / ${(strategy.cash_property_ratio * 100).toFixed(0)}% Cash`,
         );
       }
       if (strategy.first_property_type) {
@@ -67,7 +71,9 @@ export default function StrategyList({
         </h3>
         <div className="text-center text-gray-500 py-8">
           <p>No strategies added yet.</p>
-          <p className="text-sm mt-2">Define a strategy on the left to get started.</p>
+          <p className="text-sm mt-2">
+            Define a strategy on the left to get started.
+          </p>
         </div>
       </div>
     );
@@ -94,8 +100,8 @@ export default function StrategyList({
                     strategy.strategy_type === "cash_only"
                       ? "bg-green-100 text-green-800"
                       : strategy.strategy_type === "leveraged"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-purple-100 text-purple-800"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-purple-100 text-purple-800"
                   }`}
                 >
                   {formatStrategyType(strategy.strategy_type)}
@@ -116,13 +122,14 @@ export default function StrategyList({
             </div>
 
             {/* Remove Button */}
-            <button
+            <Button
               onClick={() => onRemoveStrategy(index)}
-              className="ml-4 px-3 py-1 bg-red-500 text-white text-sm rounded-md hover:bg-red-600 transition-colors flex-shrink-0"
-              title="Remove strategy"
+              variant="destructive"
+              size="sm"
+              className="ml-4 flex-shrink-0"
             >
               Remove
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -132,7 +139,10 @@ export default function StrategyList({
         <div className="text-sm text-gray-600">
           <div className="flex justify-between items-center">
             <span>
-              <strong>Ready to simulate {strategies.length} strateg{strategies.length === 1 ? 'y' : 'ies'}</strong>
+              <strong>
+                Ready to simulate {strategies.length} strateg
+                {strategies.length === 1 ? "y" : "ies"}
+              </strong>
             </span>
             <div className="text-xs text-gray-500">
               Click simulate to compare results

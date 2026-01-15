@@ -1,5 +1,19 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 interface SettingsBarProps {
   availableCapital: number;
   setAvailableCapital: (value: number) => void;
@@ -30,19 +44,15 @@ export default function SettingsBar({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Available Capital
             </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                {currency}
-              </span>
-              <input
+            <InputGroup>
+              <InputGroupAddon>{currency}</InputGroupAddon>
+              <InputGroupInput
                 type="number"
                 value={availableCapital}
                 onChange={(e) => setAvailableCapital(Number(e.target.value))}
-                className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                placeholder="500000"
                 min="0"
               />
-            </div>
+            </InputGroup>
           </div>
 
           {/* Simulation Years */}
@@ -50,20 +60,16 @@ export default function SettingsBar({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Simulation Period
             </label>
-            <div className="relative">
-              <input
+            <InputGroup>
+              <InputGroupInput
                 type="number"
                 value={simulationYears}
                 onChange={(e) => setSimulationYears(Number(e.target.value))}
-                className="w-full px-4 py-2 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-                placeholder="10"
                 min="1"
                 max="50"
               />
-              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                years
-              </span>
-            </div>
+              <InputGroupAddon align="inline-end">years</InputGroupAddon>
+            </InputGroup>
           </div>
 
           {/* Currency */}
@@ -71,16 +77,17 @@ export default function SettingsBar({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Currency
             </label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            >
-              <option value="R">ZAR (R)</option>
-              <option value="$">USD ($)</option>
-              <option value="€">EUR (€)</option>
-              <option value="£">GBP (£)</option>
-            </select>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="R">ZAR (R)</SelectItem>
+                <SelectItem value="$">USD ($)</SelectItem>
+                <SelectItem value="€">EUR (€)</SelectItem>
+                <SelectItem value="£">GBP (£)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

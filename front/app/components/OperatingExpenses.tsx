@@ -1,6 +1,12 @@
 "use client";
 
 import { OperatingRequest } from "../types/api";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Button } from "@/components/ui/button";
 
 interface OperatingExpensesProps {
   operating: OperatingRequest;
@@ -22,9 +28,14 @@ export default function OperatingExpenses({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Operating Expenses
-      </h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-800">
+          Operating Expenses
+        </h3>
+        <Button variant="outline" size="sm">
+          Add
+        </Button>
+      </div>
 
       <div className="space-y-4">
         {/* Monthly Rental Income */}
@@ -32,21 +43,17 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Monthly Rental Income
           </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              {currency}
-            </span>
-            <input
+          <InputGroup>
+            <InputGroupAddon>{currency}</InputGroupAddon>
+            <InputGroupInput
               type="number"
               value={operating.monthly_rental_income}
               onChange={(e) =>
                 updateOperating("monthly_rental_income", Number(e.target.value))
               }
-              className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="12000"
               min="0"
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Vacancy Rate */}
@@ -54,23 +61,19 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Vacancy Rate
           </label>
-          <div className="relative">
-            <input
+          <InputGroup>
+            <InputGroupInput
               type="number"
               value={operating.vacancy_rate * 100}
               onChange={(e) =>
                 updateOperating("vacancy_rate", Number(e.target.value) / 100)
               }
-              className="w-full px-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="5"
               min="0"
               max="100"
               step="0.1"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              %
-            </span>
-          </div>
+            <InputGroupAddon align="inline-end">%</InputGroupAddon>
+          </InputGroup>
         </div>
 
         {/* Monthly Levies */}
@@ -78,21 +81,17 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Monthly Levies
           </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              {currency}
-            </span>
-            <input
+          <InputGroup>
+            <InputGroupAddon>{currency}</InputGroupAddon>
+            <InputGroupInput
               type="number"
               value={operating.monthly_levies}
               onChange={(e) =>
                 updateOperating("monthly_levies", Number(e.target.value))
               }
-              className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="1500"
               min="0"
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Property Management Fee Rate */}
@@ -100,8 +99,8 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Property Management Fee
           </label>
-          <div className="relative">
-            <input
+          <InputGroup>
+            <InputGroupInput
               type="number"
               value={operating.property_management_fee_rate * 100}
               onChange={(e) =>
@@ -110,16 +109,12 @@ export default function OperatingExpenses({
                   Number(e.target.value) / 100,
                 )
               }
-              className="w-full px-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="8"
               min="0"
               max="100"
               step="0.1"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              %
-            </span>
-          </div>
+            <InputGroupAddon align="inline-end">%</InputGroupAddon>
+          </InputGroup>
           <p className="text-xs text-gray-500 mt-1">
             Percentage of rental income
           </p>
@@ -130,21 +125,17 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Monthly Insurance
           </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              {currency}
-            </span>
-            <input
+          <InputGroup>
+            <InputGroupAddon>{currency}</InputGroupAddon>
+            <InputGroupInput
               type="number"
               value={operating.monthly_insurance}
               onChange={(e) =>
                 updateOperating("monthly_insurance", Number(e.target.value))
               }
-              className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="600"
               min="0"
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Monthly Maintenance Reserve */}
@@ -152,11 +143,9 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Monthly Maintenance Reserve
           </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              {currency}
-            </span>
-            <input
+          <InputGroup>
+            <InputGroupAddon>{currency}</InputGroupAddon>
+            <InputGroupInput
               type="number"
               value={operating.monthly_maintenance_reserve}
               onChange={(e) =>
@@ -165,11 +154,9 @@ export default function OperatingExpenses({
                   Number(e.target.value),
                 )
               }
-              className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="800"
               min="0"
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Monthly Furnishing Repair Costs */}
@@ -177,11 +164,9 @@ export default function OperatingExpenses({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Monthly Furnishing/Repair Costs (Optional)
           </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              {currency}
-            </span>
-            <input
+          <InputGroup>
+            <InputGroupAddon>{currency}</InputGroupAddon>
+            <InputGroupInput
               type="number"
               value={operating.monthly_furnishing_repair_costs || 0}
               onChange={(e) =>
@@ -190,11 +175,9 @@ export default function OperatingExpenses({
                   Number(e.target.value),
                 )
               }
-              className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
-              placeholder="300"
               min="0"
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Summary */}
