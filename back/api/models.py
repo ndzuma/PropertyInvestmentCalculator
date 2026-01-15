@@ -20,6 +20,7 @@ class RefineFrequencyEnum(str, Enum):
     ANNUALLY = "annually"
     BI_ANNUALLY = "bi_annually"
     QUARTERLY = "quarterly"
+    OTHER = "other"
 
 
 class CapitalInjectionFrequencyEnum(str, Enum):
@@ -71,6 +72,7 @@ class StrategyRequest(BaseModel):
     # Refinancing parameters
     enable_refinancing: bool = False
     refinance_frequency: RefineFrequencyEnum = RefineFrequencyEnum.NEVER
+    custom_refinance_months: Optional[int] = None
     target_refinance_ltv: Optional[float] = None
 
     # Mixed strategy parameters

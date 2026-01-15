@@ -37,6 +37,7 @@ export default function StrategyBuilder({
     reinvest_cashflow: false,
     enable_refinancing: false,
     refinance_frequency: "never",
+    custom_refinance_months: undefined,
   });
 
   const [presets, setPresets] = useState<StrategyPreset[]>([]);
@@ -66,10 +67,19 @@ export default function StrategyBuilder({
     field: keyof StrategyRequest,
     value: string | number | boolean | undefined,
   ) => {
-    setStrategy((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setStrategy((prev) => {
+      const updated = {
+        ...prev,
+        [field]: value,
+      };
+
+      // Clear custom_refinance_months if refinance_frequency changes to non-other
+      if (field === "refinance_frequency" && value !== "other") {
+        updated.custom_refinance_months = undefined;
+      }
+
+      return updated;
+    });
   };
 
   const loadPreset = (presetName: string) => {
@@ -82,6 +92,7 @@ export default function StrategyBuilder({
         reinvest_cashflow: false,
         enable_refinancing: false,
         refinance_frequency: "never",
+        custom_refinance_months: undefined,
         ...preset.config,
       });
     }
@@ -144,6 +155,7 @@ export default function StrategyBuilder({
       reinvest_cashflow: false,
       enable_refinancing: false,
       refinance_frequency: "never",
+      custom_refinance_months: undefined,
     });
     setSelectedPreset("");
   };
@@ -429,28 +441,64 @@ export default function StrategyBuilder({
             </div>
 
             {strategy.enable_refinancing && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Refinance Frequency */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Refinance Frequency
-                  </label>
-                  <Select
-                    value={strategy.refinance_frequency}
-                    onValueChange={(value: RefineFrequency) =>
-                      updateStrategy("refinance_frequency", value)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="never">Never</SelectItem>
-                      <SelectItem value="annually">Annually</SelectItem>
-                      <SelectItem value="bi_annually">Bi-annually</SelectItem>
-                      <SelectItem value="quarterly">Quarterly</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-4">
+                {/* Refinance Frequency and Custom Period */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Refinance Frequency */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Refinance Frequency
+                    </label>
+                    <Select
+                      value={strategy.refinance_frequency}
+                      onValueChange={(value: RefineFrequency) =>
+                        updateStrategy("refinance_frequency", value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="never">Never</SelectItem>
+                        <SelectItem value="annually">Annually</SelectItem>
+                        <SelectItem value="bi_annually">Bi-annually</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Custom Refinance Period */}
+                  {strategy.refinance_frequency === "other" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Custom Refinance Period
+                      </label>
+                      <InputGroup>
+                        <InputGroupInput
+                          type="number"
+                          placeholder="e.g., 3, 18"
+                          value={strategy.custom_refinance_months || ""}
+                          onChange={(e) =>
+                            updateStrategy(
+                              "custom_refinance_months",
+                              e.target.value
+                                ? Number(e.target.value)
+                                : undefined,
+                            )
+                          }
+                          min="1"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          months
+                        </InputGroupAddon>
+                      </InputGroup>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Specify refinancing interval in months (e.g., 3 for
+                        quarterly, 18 for every 1.5 years)
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Target Refinance LTV */}

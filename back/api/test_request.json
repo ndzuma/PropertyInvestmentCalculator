@@ -76,7 +76,7 @@
       "leveraged_property_ratio": 0.6,
       "cash_property_ratio": 0.4,
       "ltv_ratio": 0.7,
-      "interest_rate": 0.10,
+      "interest_rate": 0.1,
       "loan_term_years": 22,
       "appreciation_rate": 0.058,
       "simulation_years": 8,
@@ -85,6 +85,20 @@
       "refinance_frequency": "annually",
       "target_refinance_ltv": 0.55,
       "first_property_type": "cash"
+    },
+    {
+      "name": "Custom Refinance (Every 18 months)",
+      "strategy_type": "leveraged",
+      "ltv_ratio": 0.75,
+      "interest_rate": 0.098,
+      "loan_term_years": 25,
+      "appreciation_rate": 0.057,
+      "simulation_months": 96,
+      "reinvest_cashflow": true,
+      "enable_refinancing": true,
+      "refinance_frequency": "other",
+      "custom_refinance_months": 18,
+      "target_refinance_ltv": 0.6
     },
     {
       "name": "Conservative Mixed",

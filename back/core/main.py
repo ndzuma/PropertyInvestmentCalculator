@@ -15,6 +15,7 @@ class RefineFrequency(Enum):
     ANNUALLY = "annually"
     BI_ANNUALLY = "bi_annually"
     QUARTERLY = "quarterly"
+    OTHER = "other"
 
 
 @dataclass

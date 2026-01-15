@@ -39,7 +39,16 @@ export default function StrategyList({
         details.push(`Interest: ${(strategy.interest_rate * 100).toFixed(1)}%`);
       }
       if (strategy.enable_refinancing) {
-        details.push(`Refinancing: ${strategy.refinance_frequency}`);
+        if (
+          strategy.refinance_frequency === "other" &&
+          strategy.custom_refinance_months
+        ) {
+          details.push(
+            `Refinancing: Every ${strategy.custom_refinance_months} months`,
+          );
+        } else {
+          details.push(`Refinancing: ${strategy.refinance_frequency}`);
+        }
       }
     }
 

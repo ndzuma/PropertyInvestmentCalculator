@@ -162,6 +162,26 @@ def create_property_investment(
     return PropertyInvestment(acquisition, financing, operating, investment_strategy)
 
 
+def convert_refinance_frequency_to_years(strategy_request) -> float:
+    """Convert refinance frequency enum to years as float"""
+    if not strategy_request.enable_refinancing:
+        return 1.0  # Default, but refinancing is disabled anyway
+
+    if strategy_request.refinance_frequency == "annually":
+        return 1.0
+    elif strategy_request.refinance_frequency == "bi_annually":
+        return 0.5
+    elif strategy_request.refinance_frequency == "quarterly":
+        return 0.25
+    elif strategy_request.refinance_frequency == "other":
+        if strategy_request.custom_refinance_months:
+            return strategy_request.custom_refinance_months / 12.0
+        else:
+            return 1.0  # Default to annually if no custom period specified
+    else:  # "never" or unknown
+        return 1.0
+
+
 def create_strategy_config(
     strategy_request, capital_injections: List[AdditionalCapitalInjection]
 ) -> StrategyConfig:
@@ -176,10 +196,11 @@ def create_strategy_config(
         )
 
     elif strategy_request.strategy_type == "leveraged":
+        refinance_years = convert_refinance_frequency_to_years(strategy_request)
         return create_leveraged_strategy(
             leverage_ratio=strategy_request.ltv_ratio,
             refinancing=strategy_request.enable_refinancing,
-            refinance_years=1.0,  # Default to yearly
+            refinance_years=refinance_years,
             reinvestment=strategy_request.reinvest_cashflow,
             tracking=TrackingFrequency.MONTHLY,
             months=strategy_request.simulation_months,
@@ -193,13 +214,14 @@ def create_strategy_config(
             else FirstPropertyType.LEVERAGED
         )
 
+        refinance_years = convert_refinance_frequency_to_years(strategy_request)
         return create_mixed_strategy(
             leveraged_property_ratio=strategy_request.leveraged_property_ratio,
             cash_property_ratio=strategy_request.cash_property_ratio,
             leverage_ratio=strategy_request.ltv_ratio,
             first_property_type=first_property_type,
             refinancing=strategy_request.enable_refinancing,
-            refinance_years=1.0,  # Default to yearly
+            refinance_years=refinance_years,
             reinvestment=strategy_request.reinvest_cashflow,
             tracking=TrackingFrequency.MONTHLY,
             months=strategy_request.simulation_months,

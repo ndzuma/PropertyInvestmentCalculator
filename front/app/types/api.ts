@@ -36,7 +36,8 @@ export type RefineFrequency =
   | "never"
   | "annually"
   | "bi_annually"
-  | "quarterly";
+  | "quarterly"
+  | "other";
 
 export interface StrategyRequest {
   name: string;
@@ -53,6 +54,7 @@ export interface StrategyRequest {
   // Refinancing parameters
   enable_refinancing: boolean;
   refinance_frequency: RefineFrequency;
+  custom_refinance_months?: number;
   target_refinance_ltv?: number;
 
   // Mixed strategy parameters
