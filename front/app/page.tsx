@@ -108,7 +108,6 @@ export default function Home() {
       const data: SimulationResponse = await response.json();
 
       if (data.success) {
-        console.log("Simulation API response:", data); // TODO: Remove after testing
         setSimulationResults(data.results);
       } else {
         setSimulationError(data.error || "Simulation failed");
