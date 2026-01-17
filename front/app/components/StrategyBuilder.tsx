@@ -301,34 +301,6 @@ export default function StrategyBuilder({
                   <InputGroupAddon align="inline-end">years</InputGroupAddon>
                 </InputGroup>
               </div>
-
-              {/* Appreciation Rate */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Appreciation Rate
-                </label>
-                <InputGroup>
-                  <InputGroupInput
-                    type="number"
-                    value={
-                      strategy.appreciation_rate
-                        ? strategy.appreciation_rate * 100
-                        : ""
-                    }
-                    onChange={(e) =>
-                      updateStrategy(
-                        "appreciation_rate",
-                        e.target.value
-                          ? Number(e.target.value) / 100
-                          : undefined,
-                      )
-                    }
-                    min="0"
-                    step="0.1"
-                  />
-                  <InputGroupAddon align="inline-end">%</InputGroupAddon>
-                </InputGroup>
-              </div>
             </div>
           </div>
         )}

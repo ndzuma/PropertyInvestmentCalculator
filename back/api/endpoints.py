@@ -137,13 +137,13 @@ def create_property_investment(
         financing = FinancingParameters(
             ltv_ratio=0.0,
             financing_type=FinancingType.CASH,
-            appreciation_rate=0.06,  # Default
+            appreciation_rate=request.appreciation_rate,  # Use global appreciation rate
         )
     else:
         financing = FinancingParameters(
             ltv_ratio=strategy_config.leverage_ratio,
             financing_type=FinancingType.LEVERAGED,
-            appreciation_rate=0.06,  # Will be overridden by strategy
+            appreciation_rate=request.appreciation_rate,  # Use global appreciation rate
             interest_rate=0.10,  # Will be overridden by strategy
             loan_term_years=20,  # Will be overridden by strategy
         )
@@ -258,11 +258,9 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
             # Create property investment with strategy-specific parameters
             property_investment = create_property_investment(request, strategy_config)
 
-            # Override financing parameters with strategy-specific values
-            if strategy_request.appreciation_rate:
-                property_investment.financing.appreciation_rate = (
-                    strategy_request.appreciation_rate
-                )
+            # Override financing parameters with global and strategy-specific values
+            # Use global appreciation rate for all properties
+            property_investment.financing.appreciation_rate = request.appreciation_rate
             if strategy_request.interest_rate:
                 property_investment.financing.interest_rate = (
                     strategy_request.interest_rate

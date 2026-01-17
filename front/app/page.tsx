@@ -26,6 +26,7 @@ export default function Home() {
   );
   const [simulationMonths, setSimulationMonths] = useState(120); // 10 years = 120 months
   const [currency, setCurrency] = useState("R");
+  const [appreciationRate, setAppreciationRate] = useState(0.06); // Default 6% annual
 
   // Property state
   const [property, setProperty] = useState<PropertyRequest>({
@@ -91,6 +92,7 @@ export default function Home() {
         available_capital: availableCapital || 0,
         capital_injections: capitalInjections,
         strategies,
+        appreciation_rate: appreciationRate,
       };
 
       const response = await fetch("http://localhost:8001/simulate", {
@@ -143,6 +145,8 @@ export default function Home() {
           setSimulationMonths={setSimulationMonths}
           currency={currency}
           setCurrency={setCurrency}
+          appreciationRate={appreciationRate}
+          setAppreciationRate={setAppreciationRate}
         />
       </div>
 

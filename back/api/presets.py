@@ -25,7 +25,6 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "ltv_ratio": 0.6,
                 "interest_rate": 0.10,
                 "loan_term_years": 20,
-                "appreciation_rate": 0.06,
                 "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
@@ -42,7 +41,6 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "ltv_ratio": 0.8,
                 "interest_rate": 0.105,
                 "loan_term_years": 20,
-                "appreciation_rate": 0.06,
                 "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
@@ -61,7 +59,6 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "ltv_ratio": 0.7,
                 "interest_rate": 0.10,
                 "loan_term_years": 20,
-                "appreciation_rate": 0.06,
                 "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
@@ -81,7 +78,6 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "ltv_ratio": 0.5,
                 "interest_rate": 0.095,
                 "loan_term_years": 25,
-                "appreciation_rate": 0.055,
                 "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": False,

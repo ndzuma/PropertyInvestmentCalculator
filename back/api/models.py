@@ -67,7 +67,6 @@ class StrategyRequest(BaseModel):
     ltv_ratio: Optional[float] = None
     interest_rate: Optional[float] = None
     loan_term_years: Optional[int] = 20
-    appreciation_rate: Optional[float] = 0.06
 
     # Refinancing parameters
     enable_refinancing: bool = False
@@ -87,6 +86,7 @@ class SimulationRequest(BaseModel):
     available_capital: float
     capital_injections: List[CapitalInjectionRequest] = []
     strategies: List[StrategyRequest]
+    appreciation_rate: float = 0.06
 
 
 class StrategySummary(BaseModel):

@@ -49,7 +49,6 @@ export interface StrategyRequest {
   ltv_ratio?: number;
   interest_rate?: number;
   loan_term_years?: number;
-  appreciation_rate?: number;
 
   // Refinancing parameters
   enable_refinancing: boolean;
@@ -69,6 +68,7 @@ export interface SimulationRequest {
   available_capital: number;
   capital_injections: CapitalInjectionRequest[];
   strategies: StrategyRequest[];
+  appreciation_rate: number;
 }
 
 export interface StrategySummary {

@@ -22,6 +22,8 @@ interface SettingsBarProps {
   setSimulationMonths: (value: number) => void;
   currency: string;
   setCurrency: (value: string) => void;
+  appreciationRate: number;
+  setAppreciationRate: (value: number) => void;
 }
 
 export default function SettingsBar({
@@ -31,6 +33,8 @@ export default function SettingsBar({
   setSimulationMonths,
   currency,
   setCurrency,
+  appreciationRate,
+  setAppreciationRate,
 }: SettingsBarProps) {
   const [periodUnit, setPeriodUnit] = useState<"months" | "years">("years");
 
@@ -55,7 +59,7 @@ export default function SettingsBar({
           Simulation Settings
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Available Capital */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -125,6 +129,29 @@ export default function SettingsBar({
                 <SelectItem value="£">GBP (£)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Estimated Asset Appreciation */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Asset Appreciation Rate
+            </label>
+            <InputGroup>
+              <InputGroupInput
+                type="number"
+                value={appreciationRate * 100}
+                onChange={(e) =>
+                  setAppreciationRate(Number(e.target.value) / 100)
+                }
+                min="0"
+                max="50"
+                step="0.1"
+              />
+              <InputGroupAddon align="inline-end">%</InputGroupAddon>
+            </InputGroup>
+            <p className="text-xs text-gray-500 mt-1">
+              Annual property value appreciation rate
+            </p>
           </div>
         </div>
       </div>
