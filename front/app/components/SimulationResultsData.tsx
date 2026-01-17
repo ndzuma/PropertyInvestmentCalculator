@@ -145,32 +145,61 @@ export default function SimulationResultsData({
                       {/* Events Summary */}
                       <div className="mt-4 pt-3 border-t border-gray-200">
                         <div className="text-xs text-gray-500 space-y-1">
-                          {result.events.property_purchases.length > 0 && (
-                            <div>
-                              {result.events.property_purchases.length} purchase
-                              {result.events.property_purchases.length !== 1
-                                ? "s"
-                                : ""}
-                            </div>
-                          )}
-                          {result.events.refinancing_events.length > 0 && (
-                            <div>
-                              {result.events.refinancing_events.length}{" "}
-                              refinancing
-                              {result.events.refinancing_events.length !== 1
-                                ? "s"
-                                : ""}
-                            </div>
-                          )}
-                          {result.events.capital_injections.length > 0 && (
-                            <div>
-                              {result.events.capital_injections.length} capital
-                              injection
-                              {result.events.capital_injections.length !== 1
-                                ? "s"
-                                : ""}
-                            </div>
-                          )}
+                          {(() => {
+                            // Analyze purchases
+                            const cashCount =
+                              result.events.property_purchases.filter(
+                                (p) => p.financing_type === "cash",
+                              ).length;
+                            const leveragedCount =
+                              result.events.property_purchases.filter(
+                                (p) => p.financing_type !== "cash",
+                              ).length;
+                            const totalPurchases =
+                              result.events.property_purchases.length;
+
+                            // Analyze refinances
+                            const uniquePropertyIds = new Set(
+                              result.events.refinancing_events.map(
+                                (r) => r.property_id,
+                              ),
+                            );
+                            const uniqueProperties = uniquePropertyIds.size;
+                            const totalRefinances =
+                              result.events.refinancing_events.length;
+
+                            return (
+                              <>
+                                {totalPurchases > 0 && (
+                                  <div>
+                                    {totalPurchases} purchase
+                                    {totalPurchases !== 1 ? "s" : ""} (
+                                    {cashCount} cash, {leveragedCount}{" "}
+                                    leveraged)
+                                  </div>
+                                )}
+                                {totalRefinances > 0 && (
+                                  <div>
+                                    {uniqueProperties} propert
+                                    {uniqueProperties !== 1 ? "ies" : "y"}{" "}
+                                    refinanced, {totalRefinances} total
+                                    refinance{totalRefinances !== 1 ? "s" : ""}
+                                  </div>
+                                )}
+                                {result.events.capital_injections.length >
+                                  0 && (
+                                  <div>
+                                    {result.events.capital_injections.length}{" "}
+                                    capital injection
+                                    {result.events.capital_injections.length !==
+                                    1
+                                      ? "s"
+                                      : ""}
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
 
