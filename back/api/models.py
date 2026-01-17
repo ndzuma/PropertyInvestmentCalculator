@@ -89,6 +89,80 @@ class SimulationRequest(BaseModel):
     appreciation_rate: float = 0.06
 
 
+class PropertyExpenses(BaseModel):
+    mortgage_payment: float
+    property_taxes: float = 0.0  # Not currently calculated
+    insurance: float
+    maintenance: float
+    management_fees: float
+    levies: float
+    furnishing_repair_costs: float = 0.0
+    total: float
+
+
+class PropertyCostBasis(BaseModel):
+    down_payment: float
+    transfer_duty: float
+    conveyancing_fees: float
+    bond_registration: float
+    furnishing_costs: float
+    total: float
+
+
+class PropertyDetail(BaseModel):
+    # Basic Property Info
+    property_id: int
+    purchase_price: float
+    current_value: float
+    purchase_date: Optional[str] = None  # or month index
+    months_owned: int
+
+    # Financing Details
+    loan_amount: float
+    down_payment: float
+    interest_rate: float
+    loan_term_months: int
+    financing_type: str
+
+    # Mortgage Details
+    monthly_mortgage_payment: float
+    monthly_principal: float
+    monthly_interest: float
+    remaining_loan_balance: float
+    months_remaining: int
+    ltv_ratio: float  # current LTV
+
+    # Income & Expenses Breakdown
+    monthly_rental_income: float
+    annual_rental_income: float
+    monthly_expenses: PropertyExpenses
+    annual_expenses: float
+
+    # Cash Flow & Performance
+    monthly_cashflow: float
+    annual_cashflow: float
+    cash_on_cash_return: float
+    cap_rate: float
+
+    # Investment Tracking
+    cost_basis: PropertyCostBasis
+    total_cash_invested: float
+    current_equity: float
+    equity_growth: float
+
+    # Yield Calculations
+    gross_rental_yield: float
+    net_rental_yield: float
+
+    # Appreciation Tracking
+    appreciation_amount: float
+    appreciation_percentage: float
+
+    # Performance Metrics
+    roi_percentage: float
+    total_return: float
+
+
 class StrategySummary(BaseModel):
     final_property_count: int
     final_portfolio_value: float
@@ -101,7 +175,7 @@ class StrategySummary(BaseModel):
 
     # Enhanced financial metrics
     total_debt: float
-    monthly_expenses: float
+    monthly_expenses: float  # Now includes mortgage payments
     annual_cashflow: float
     rental_yield: float
     net_rental_yield: float
@@ -113,12 +187,16 @@ class StrategySummary(BaseModel):
     total_annual_rental_income: float
     total_annual_expenses: float
 
+    # Comprehensive property details
+    properties: List[PropertyDetail] = []
+
 
 class StrategyResult(BaseModel):
     strategy_name: str
     summary: StrategySummary
     snapshots: List[Dict[str, Any]]
     events: Dict[str, List[Dict[str, Any]]]
+    properties: List[PropertyDetail] = []
 
 
 class SimulationResponse(BaseModel):

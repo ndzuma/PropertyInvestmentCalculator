@@ -359,14 +359,8 @@ class PropertyPortfolioSimulator:
             self.end_reason = f"Insufficient cash to buy first property. Need R{cash_required:,.0f}, have R{available_cash:,.0f}"
             return portfolio
 
-        # Calculate cost basis (total cash invested in property)
-        cost_basis = (
-            self.base_property.acquisition_costs.purchase_price
-            + self.base_property.acquisition_costs.transfer_duty
-            + self.base_property.acquisition_costs.conveyancing_fees
-            + self.base_property.acquisition_costs.bond_registration
-            + (self.base_property.acquisition_costs.furnishing_cost or 0.0)
-        )
+        # Calculate cost basis (actual cash invested in property, not total acquisition cost)
+        cost_basis = cash_required
 
         # Create first property
         property_data = PropertyData(

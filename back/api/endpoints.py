@@ -23,6 +23,9 @@ from core.strategies import (
 )
 
 from .models import (
+    PropertyCostBasis,
+    PropertyDetail,
+    PropertyExpenses,
     SimulationRequest,
     SimulationResponse,
     StrategyResult,
@@ -281,17 +284,176 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
             # Convert results to API format with enhanced metrics
             final_snapshot = snapshots[-1]
 
-            # Calculate final metrics
+            # Calculate final metrics and create comprehensive property details
             final_monthly_expenses = 0
             final_annual_rental_income = 0
             final_annual_expenses = 0
             final_total_cost_basis = 0
+            comprehensive_properties = []
 
             for prop in final_snapshot.properties:
                 final_annual_rental_income += prop.annual_rental_income
                 final_annual_expenses += prop.annual_expenses
-                final_monthly_expenses += prop.annual_expenses / 12
+                # Include mortgage payments in monthly expenses
+                monthly_operating_expenses = prop.annual_expenses / 12
+                monthly_mortgage_payment = prop.monthly_payment
+                final_monthly_expenses += (
+                    monthly_operating_expenses + monthly_mortgage_payment
+                )
                 final_total_cost_basis += prop.cost_basis
+
+                # Create comprehensive property details
+                # Calculate individual property metrics
+                current_ltv = (
+                    prop.loan_amount / prop.current_value
+                    if prop.current_value > 0
+                    else 0
+                )
+                current_equity = prop.current_value - prop.loan_amount
+                appreciation_amount = prop.current_value - prop.purchase_price
+                appreciation_percentage = (
+                    (appreciation_amount / prop.purchase_price * 100)
+                    if prop.purchase_price > 0
+                    else 0
+                )
+
+                # Estimate down payment from cost basis and financing type
+                if "leverage" in prop.financing_type.lower():
+                    leverage_percent = (
+                        float(prop.financing_type.replace("%_leverage", "")) / 100
+                    )
+                    down_payment = prop.purchase_price * (1 - leverage_percent)
+                else:
+                    down_payment = prop.purchase_price
+
+                # Calculate cost basis breakdown (estimated)
+                acquisition_costs = property_investment.acquisition_costs
+                cost_basis_breakdown = PropertyCostBasis(
+                    down_payment=down_payment,
+                    transfer_duty=acquisition_costs.transfer_duty,
+                    conveyancing_fees=acquisition_costs.conveyancing_fees,
+                    bond_registration=acquisition_costs.bond_registration
+                    if prop.loan_amount > 0
+                    else 0,
+                    furnishing_costs=acquisition_costs.furnishing_cost or 0,
+                    total=prop.cost_basis,
+                )
+
+                # Calculate operating expenses breakdown
+                operating = property_investment.operating
+                monthly_management_fee = (
+                    operating.monthly_rental_income
+                    * operating.property_management_fee_rate
+                )
+                monthly_expenses_breakdown = PropertyExpenses(
+                    mortgage_payment=monthly_mortgage_payment,
+                    insurance=operating.monthly_insurance,
+                    maintenance=operating.monthly_maintenance_reserve,
+                    management_fees=monthly_management_fee,
+                    levies=operating.monthly_levies,
+                    furnishing_repair_costs=operating.monthly_furnishing_repair_costs
+                    or 0,
+                    total=monthly_operating_expenses + monthly_mortgage_payment,
+                )
+
+                # Calculate yields and performance metrics
+                gross_rental_yield = (
+                    (prop.annual_rental_income / prop.current_value * 100)
+                    if prop.current_value > 0
+                    else 0
+                )
+                net_rental_yield = (
+                    (
+                        (prop.annual_rental_income - prop.annual_expenses)
+                        / prop.current_value
+                        * 100
+                    )
+                    if prop.current_value > 0
+                    else 0
+                )
+                cash_on_cash_return = (
+                    (prop.monthly_cashflow * 12 / prop.cost_basis * 100)
+                    if prop.cost_basis > 0
+                    else 0
+                )
+                cap_rate = (
+                    (
+                        (prop.annual_rental_income - prop.annual_expenses)
+                        / prop.current_value
+                        * 100
+                    )
+                    if prop.current_value > 0
+                    else 0
+                )
+                roi_percentage = (
+                    ((current_equity - prop.cost_basis) / prop.cost_basis * 100)
+                    if prop.cost_basis > 0
+                    else 0
+                )
+
+                # Get financing parameters
+                financing = property_investment.financing
+                loan_term_months = (financing.loan_term_years or 20) * 12
+                months_remaining = max(0, loan_term_months - prop.months_owned)
+
+                # Calculate monthly principal and interest (approximation)
+                monthly_interest = (
+                    prop.loan_amount * (financing.interest_rate or 0.105)
+                ) / 12
+                monthly_principal = (
+                    monthly_mortgage_payment - monthly_interest
+                    if monthly_mortgage_payment > monthly_interest
+                    else 0
+                )
+
+                comprehensive_property = PropertyDetail(
+                    property_id=prop.property_id,
+                    purchase_price=prop.purchase_price,
+                    current_value=prop.current_value,
+                    purchase_date=f"Month {prop.months_owned}",
+                    months_owned=prop.months_owned,
+                    # Financing Details
+                    loan_amount=prop.loan_amount,
+                    down_payment=down_payment,
+                    interest_rate=financing.interest_rate or 0.105,
+                    loan_term_months=loan_term_months,
+                    financing_type=prop.financing_type,
+                    # Mortgage Details
+                    monthly_mortgage_payment=monthly_mortgage_payment,
+                    monthly_principal=monthly_principal,
+                    monthly_interest=monthly_interest,
+                    remaining_loan_balance=prop.loan_amount,  # Simplified - not calculating amortization
+                    months_remaining=months_remaining,
+                    ltv_ratio=current_ltv * 100,
+                    # Income & Expenses
+                    monthly_rental_income=operating.monthly_rental_income,
+                    annual_rental_income=prop.annual_rental_income,
+                    monthly_expenses=monthly_expenses_breakdown,
+                    annual_expenses=prop.annual_expenses,
+                    # Cash Flow & Performance
+                    monthly_cashflow=prop.monthly_cashflow,
+                    annual_cashflow=prop.monthly_cashflow * 12,
+                    cash_on_cash_return=cash_on_cash_return,
+                    cap_rate=cap_rate,
+                    # Investment Tracking
+                    cost_basis=cost_basis_breakdown,
+                    total_cash_invested=prop.cost_basis,
+                    current_equity=current_equity,
+                    equity_growth=current_equity - prop.cost_basis,
+                    # Yields
+                    gross_rental_yield=gross_rental_yield,
+                    net_rental_yield=net_rental_yield,
+                    # Appreciation
+                    appreciation_amount=appreciation_amount,
+                    appreciation_percentage=appreciation_percentage,
+                    # Performance
+                    roi_percentage=roi_percentage,
+                    total_return=current_equity
+                    - prop.cost_basis
+                    + (prop.monthly_cashflow * 12 * (prop.months_owned / 12)),
+                )
+
+                comprehensive_properties.append(comprehensive_property)
 
             # Calculate final yield metrics
             final_rental_yield = (
@@ -353,6 +515,8 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 loan_to_value_ratio=final_loan_to_value_ratio,
                 total_annual_rental_income=final_annual_rental_income,
                 total_annual_expenses=final_annual_expenses,
+                # Comprehensive property details
+                properties=comprehensive_properties,
             )
 
             # Convert snapshots to dictionaries with comprehensive data
@@ -367,7 +531,10 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 for prop in snapshot.properties:
                     total_annual_rental_income += prop.annual_rental_income
                     total_annual_expenses += prop.annual_expenses
-                    monthly_expenses += prop.annual_expenses / 12
+                    # Include mortgage payments in monthly expenses for snapshots
+                    monthly_expenses += (
+                        prop.annual_expenses / 12
+                    ) + prop.monthly_payment
                     total_cost_basis += prop.cost_basis
 
                 # Calculate yield metrics
@@ -580,6 +747,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 summary=summary,
                 snapshots=snapshot_dicts,
                 events=events,
+                properties=comprehensive_properties,
             )
             results.append(strategy_result)
 
