@@ -427,16 +427,24 @@ class PropertyPortfolioSimulator:
         monthly_cashflow = 0.0
 
         for prop in portfolio["properties"]:
-            # Apply principal payment (simplified)
-            if prop.loan_amount > 0:
-                principal_payment = prop.monthly_payment * 0.3  # Simplified
+            # Apply principal payment (accurate amortization)
+            if prop.loan_amount > 0 and prop.monthly_payment > 0:
+                # Calculate actual principal payment based on current loan balance
+                interest_rate = self.base_property.financing.interest_rate or 0.105
+                monthly_rate = interest_rate / 12
+                monthly_interest = prop.loan_amount * monthly_rate
+                principal_payment = prop.monthly_payment - monthly_interest
+                # Ensure principal payment doesn't exceed loan balance
+                principal_payment = min(principal_payment, prop.loan_amount)
                 prop.loan_amount = max(0, prop.loan_amount - principal_payment)
 
-            # Calculate monthly cash flow from this property
-            monthly_rent = prop.annual_rental_income / 12
+            # Calculate monthly cash flow from this property (with vacancy adjustment)
+            monthly_gross_rent = prop.annual_rental_income / 12
+            vacancy_rate = self.base_property.operating.vacancy_rate
+            monthly_effective_rent = monthly_gross_rent * (1 - vacancy_rate)
             monthly_expenses = prop.annual_expenses / 12
             property_monthly_cashflow = (
-                monthly_rent - monthly_expenses - prop.monthly_payment
+                monthly_effective_rent - monthly_expenses - prop.monthly_payment
             )
 
             monthly_cashflow += property_monthly_cashflow

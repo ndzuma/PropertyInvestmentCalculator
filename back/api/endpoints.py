@@ -293,7 +293,9 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
 
             for prop in final_snapshot.properties:
                 final_annual_rental_income += prop.annual_rental_income
-                final_annual_expenses += prop.annual_expenses
+                # Include mortgage payments in annual expenses for consistency
+                annual_mortgage_payment = prop.monthly_payment * 12
+                final_annual_expenses += prop.annual_expenses + annual_mortgage_payment
                 # Include mortgage payments in monthly expenses
                 monthly_operating_expenses = prop.annual_expenses / 12
                 monthly_mortgage_payment = prop.monthly_payment
@@ -530,7 +532,11 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
 
                 for prop in snapshot.properties:
                     total_annual_rental_income += prop.annual_rental_income
-                    total_annual_expenses += prop.annual_expenses
+                    # Include mortgage payments in annual expenses for consistency
+                    annual_mortgage_payment = prop.monthly_payment * 12
+                    total_annual_expenses += (
+                        prop.annual_expenses + annual_mortgage_payment
+                    )
                     # Include mortgage payments in monthly expenses for snapshots
                     monthly_expenses += (
                         prop.annual_expenses / 12
