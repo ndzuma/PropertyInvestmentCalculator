@@ -95,6 +95,7 @@ class StrategySummary(BaseModel):
     final_equity: float
     monthly_cashflow: float
     total_cash_invested: float
+    initial_available_capital: float
     simulation_ended: bool = False
     end_reason: Optional[str] = None
 

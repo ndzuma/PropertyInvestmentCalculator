@@ -337,6 +337,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 final_equity=final_snapshot.total_equity,
                 monthly_cashflow=final_snapshot.monthly_cashflow,
                 total_cash_invested=final_snapshot.total_cash_invested,
+                initial_available_capital=request.available_capital,
                 simulation_ended=final_snapshot.simulation_ended,
                 end_reason=final_snapshot.end_reason,
                 # Enhanced financial metrics
@@ -478,46 +479,100 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 }
                 snapshot_dicts.append(snapshot_dict)
 
-            # Collect all events across all snapshots
-            all_property_purchases = []
-            all_refinancing_events = []
-            all_capital_injections = []
+            # Collect all events across all snapshots with period information
+            all_events_with_periods = []
 
             for snapshot in snapshots:
-                all_property_purchases.extend(snapshot.property_purchases)
-                all_refinancing_events.extend(snapshot.refinancing_events)
-                all_capital_injections.extend(snapshot.capital_injections)
+                # Add property purchases with period
+                for event in snapshot.property_purchases:
+                    all_events_with_periods.append(
+                        {
+                            "type": "purchase",
+                            "period": snapshot.period,
+                            "property_id": event.property_id,
+                            "purchase_price": event.purchase_price,
+                            "financing_type": event.financing_type,
+                            "cash_required": event.cash_required,
+                            "loan_amount": event.loan_amount,
+                        }
+                    )
+
+                # Add refinancing events with period
+                for event in snapshot.refinancing_events:
+                    all_events_with_periods.append(
+                        {
+                            "type": "refinance",
+                            "period": snapshot.period,
+                            "property_id": event.property_id,
+                            "cash_extracted": event.cash_extracted,
+                            "new_loan_amount": event.new_loan_amount,
+                            "old_loan_amount": event.old_loan_amount,
+                            "new_ltv": event.new_ltv,
+                        }
+                    )
+
+                # Add capital injections with period
+                for event in snapshot.capital_injections:
+                    all_events_with_periods.append(
+                        {
+                            "type": "capital_injection",
+                            "period": snapshot.period,
+                            "amount": event.amount,
+                            "source": event.source,
+                            "total_additional_capital_to_date": event.total_additional_capital_to_date,
+                        }
+                    )
+
+            # Sort events chronologically by period
+            all_events_with_periods.sort(key=lambda x: x["period"])
+
+            # Separate events by type for backwards compatibility
+            property_purchases = [
+                e for e in all_events_with_periods if e["type"] == "purchase"
+            ]
+            refinancing_events = [
+                e for e in all_events_with_periods if e["type"] == "refinance"
+            ]
+            capital_injections = [
+                e for e in all_events_with_periods if e["type"] == "capital_injection"
+            ]
 
             # Convert events to dictionaries
             events = {
                 "property_purchases": [
                     {
-                        "property_id": event.property_id,
-                        "purchase_price": event.purchase_price,
-                        "financing_type": event.financing_type,
-                        "cash_required": event.cash_required,
-                        "loan_amount": event.loan_amount,
+                        "property_id": event["property_id"],
+                        "purchase_price": event["purchase_price"],
+                        "financing_type": event["financing_type"],
+                        "cash_required": event["cash_required"],
+                        "loan_amount": event["loan_amount"],
+                        "period": event["period"],
                     }
-                    for event in all_property_purchases
+                    for event in property_purchases
                 ],
                 "refinancing_events": [
                     {
-                        "property_id": event.property_id,
-                        "cash_extracted": event.cash_extracted,
-                        "new_loan_amount": event.new_loan_amount,
-                        "old_loan_amount": event.old_loan_amount,
-                        "new_ltv": event.new_ltv,
+                        "property_id": event["property_id"],
+                        "cash_extracted": event["cash_extracted"],
+                        "new_loan_amount": event["new_loan_amount"],
+                        "old_loan_amount": event["old_loan_amount"],
+                        "new_ltv": event["new_ltv"],
+                        "period": event["period"],
                     }
-                    for event in all_refinancing_events
+                    for event in refinancing_events
                 ],
                 "capital_injections": [
                     {
-                        "amount": event.amount,
-                        "source": event.source,
-                        "total_additional_capital_to_date": event.total_additional_capital_to_date,
+                        "amount": event["amount"],
+                        "source": event["source"],
+                        "total_additional_capital_to_date": event[
+                            "total_additional_capital_to_date"
+                        ],
+                        "period": event["period"],
                     }
-                    for event in all_capital_injections
+                    for event in capital_injections
                 ],
+                "chronological_events": all_events_with_periods,
             }
 
             strategy_result = StrategyResult(

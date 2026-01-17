@@ -77,6 +77,7 @@ export interface StrategySummary {
   final_equity: number;
   monthly_cashflow: number;
   total_cash_invested: number;
+  initial_available_capital: number;
   simulation_ended: boolean;
   end_reason?: string;
 
@@ -160,6 +161,7 @@ export interface StrategyResult {
       financing_type: string;
       cash_required: number;
       loan_amount: number;
+      period: number;
     }>;
     refinancing_events: Array<{
       property_id: number;
@@ -167,11 +169,18 @@ export interface StrategyResult {
       new_loan_amount: number;
       old_loan_amount: number;
       new_ltv: number;
+      period: number;
     }>;
     capital_injections: Array<{
       amount: number;
       source: string;
       total_additional_capital_to_date: number;
+      period: number;
+    }>;
+    chronological_events: Array<{
+      type: "purchase" | "refinance" | "capital_injection";
+      period: number;
+      [key: string]: unknown;
     }>;
   };
 }

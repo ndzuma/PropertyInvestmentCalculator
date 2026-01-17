@@ -130,7 +130,7 @@ export default function StrategyDetailDrawer({
                   </h4>
                   <p className="text-lg font-semibold">
                     {formatCurrency(
-                      strategy.summary.total_cash_invested -
+                      strategy.summary.initial_available_capital +
                         strategy.events.capital_injections.reduce(
                           (sum, injection) => sum + injection.amount,
                           0,
@@ -144,10 +144,12 @@ export default function StrategyDetailDrawer({
                   </h4>
                   <p className="text-lg font-semibold">
                     {formatCurrency(
-                      strategy.events.capital_injections.reduce(
-                        (sum, injection) => sum + injection.amount,
-                        0,
-                      ),
+                      strategy.summary.total_cash_invested -
+                        strategy.summary.initial_available_capital -
+                        strategy.events.capital_injections.reduce(
+                          (sum, injection) => sum + injection.amount,
+                          0,
+                        ),
                     )}
                   </p>
                 </div>
@@ -161,109 +163,140 @@ export default function StrategyDetailDrawer({
               <CardTitle className="text-lg">Financial Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-600 mb-1">
-                      Portfolio Value Growth
-                    </h4>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">
-                        {formatCurrency(initialSnapshot.total_property_value)} →{" "}
-                        {formatCurrency(finalSnapshot.total_property_value)}
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          portfolioValueGrowth >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        +{formatCurrency(portfolioValueGrowth)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-600 mb-1">
-                      Equity Growth
-                    </h4>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">
-                        {formatCurrency(initialSnapshot.total_equity)} →{" "}
-                        {formatCurrency(finalSnapshot.total_equity)}
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          equityGrowth >= 0 ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        +{formatCurrency(equityGrowth)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-600 mb-1">
-                      Monthly Cashflow Growth
-                    </h4>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">
-                        {formatCurrency(initialSnapshot.monthly_cashflow)} →{" "}
-                        {formatCurrency(finalSnapshot.monthly_cashflow)}
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          cashFlowGrowth >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {cashFlowGrowth >= 0 ? "+" : ""}
-                        {formatCurrency(cashFlowGrowth)}
-                      </span>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Portfolio Value Growth
+                  </h4>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500">
+                      {formatCurrency(initialSnapshot.total_property_value)} →{" "}
+                      {formatCurrency(finalSnapshot.total_property_value)}
+                    </p>
+                    <p
+                      className={`text-lg font-semibold ${
+                        portfolioValueGrowth >= 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      +{formatCurrency(portfolioValueGrowth)}
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-600 mb-1">
-                      Return on Investment
-                    </h4>
-                    <p className="text-xl font-bold text-blue-600">
-                      {formatPercentage(
-                        strategy.summary.total_cash_invested > 0
-                          ? (strategy.summary.final_equity -
-                              strategy.summary.total_cash_invested) /
-                              strategy.summary.total_cash_invested
-                          : 0,
-                      )}
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Equity Growth
+                  </h4>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500">
+                      {formatCurrency(initialSnapshot.total_equity)} →{" "}
+                      {formatCurrency(finalSnapshot.total_equity)}
+                    </p>
+                    <p
+                      className={`text-lg font-semibold ${
+                        equityGrowth >= 0 ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      +{formatCurrency(equityGrowth)}
                     </p>
                   </div>
+                </div>
 
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-600 mb-1">
-                      Final Debt-to-Equity Ratio
-                    </h4>
-                    <p className="text-lg font-semibold">
-                      {formatPercentage(
-                        finalSnapshot.total_equity > 0
-                          ? finalSnapshot.total_debt /
-                              finalSnapshot.total_equity
-                          : 0,
-                      )}
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Monthly Cashflow
+                  </h4>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-500">
+                      {formatCurrency(initialSnapshot.monthly_cashflow)} →{" "}
+                      {formatCurrency(finalSnapshot.monthly_cashflow)}
+                    </p>
+                    <p
+                      className={`text-lg font-semibold ${
+                        cashFlowGrowth >= 0 ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {cashFlowGrowth >= 0 ? "+" : ""}
+                      {formatCurrency(cashFlowGrowth)}
                     </p>
                   </div>
+                </div>
 
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-600 mb-1">
-                      Cash Available
-                    </h4>
-                    <p className="text-lg font-semibold">
-                      {formatCurrency(finalSnapshot.cash_available)}
-                    </p>
-                  </div>
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Return on Investment
+                  </h4>
+                  <p className="text-lg font-semibold text-blue-600">
+                    {formatPercentage(
+                      strategy.summary.total_cash_invested > 0
+                        ? (strategy.summary.final_equity -
+                            strategy.summary.total_cash_invested) /
+                            strategy.summary.total_cash_invested
+                        : 0,
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Net Rental Yield
+                  </h4>
+                  <p className="text-lg font-semibold text-purple-600">
+                    {formatPercentage(finalSnapshot.net_rental_yield || 0)}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Annual Cashflow
+                  </h4>
+                  <p className="text-lg font-semibold text-green-600">
+                    {formatCurrency(finalSnapshot.annual_cashflow || 0)}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    LTV Ratio
+                  </h4>
+                  <p className="text-lg font-semibold text-orange-600">
+                    {formatPercentage(
+                      finalSnapshot.total_property_value > 0
+                        ? finalSnapshot.total_debt /
+                            finalSnapshot.total_property_value
+                        : 0,
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Annual Income
+                  </h4>
+                  <p className="text-lg font-semibold text-indigo-600">
+                    {formatCurrency(
+                      finalSnapshot.properties?.reduce(
+                        (sum, prop) => sum + prop.annual_rental_income,
+                        0,
+                      ) || 0,
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600 mb-2">
+                    Annual Expenses
+                  </h4>
+                  <p className="text-lg font-semibold text-red-600">
+                    {formatCurrency(
+                      finalSnapshot.properties?.reduce(
+                        (sum, prop) => sum + prop.annual_expenses,
+                        0,
+                      ) || 0,
+                    )}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -276,6 +309,28 @@ export default function StrategyDetailDrawer({
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                {/* Portfolio Value Summary */}
+                <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="text-lg font-semibold text-blue-900 mb-2">
+                    Total Portfolio Value:{" "}
+                    {formatCurrency(finalSnapshot.total_property_value)}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-blue-700">Total Debt: </span>
+                      <span className="font-medium">
+                        {formatCurrency(finalSnapshot.total_debt)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">Total Equity: </span>
+                      <span className="font-medium">
+                        {formatCurrency(finalSnapshot.total_equity)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <p className="text-2xl font-bold text-gray-900">
@@ -312,6 +367,12 @@ export default function StrategyDetailDrawer({
                               <th className="text-right p-2">Value</th>
                               <th className="text-right p-2">Debt</th>
                               <th className="text-right p-2">Equity</th>
+                              <th className="text-right p-2">LTV%</th>
+                              <th className="text-right p-2">Monthly Income</th>
+                              <th className="text-right p-2">
+                                Monthly Expenses
+                              </th>
+                              <th className="text-right p-2">Cost Basis</th>
                               <th className="text-right p-2">Cashflow</th>
                             </tr>
                           </thead>
@@ -335,6 +396,27 @@ export default function StrategyDetailDrawer({
                                     property.current_value -
                                       property.loan_amount,
                                   )}
+                                </td>
+                                <td className="text-right p-2">
+                                  {property.current_value > 0
+                                    ? formatPercentage(
+                                        property.loan_amount /
+                                          property.current_value,
+                                      )
+                                    : "0%"}
+                                </td>
+                                <td className="text-right p-2">
+                                  {formatCurrency(
+                                    property.annual_rental_income / 12,
+                                  )}
+                                </td>
+                                <td className="text-right p-2">
+                                  {formatCurrency(
+                                    property.annual_expenses / 12,
+                                  )}
+                                </td>
+                                <td className="text-right p-2">
+                                  {formatCurrency(property.cost_basis)}
                                 </td>
                                 <td className="text-right p-2">
                                   {formatCurrency(property.monthly_cashflow)}
@@ -408,44 +490,50 @@ export default function StrategyDetailDrawer({
               </div>
 
               {/* Timeline of major events */}
-              {(strategy.events.property_purchases.length > 0 ||
-                strategy.events.refinancing_events.length > 0) && (
-                <div className="mt-6">
-                  <h4 className="font-medium text-sm text-gray-600 mb-3">
-                    Major Events Timeline
-                  </h4>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {strategy.events.property_purchases.map(
-                      (purchase, index) => (
-                        <div
-                          key={`purchase-${index}`}
-                          className="flex justify-between items-center text-xs p-2 bg-green-50 rounded"
-                        >
-                          <span>Purchased Property {purchase.property_id}</span>
-                          <span className="font-medium">
-                            {formatCurrency(purchase.purchase_price)}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                    {strategy.events.refinancing_events.map(
-                      (refinance, index) => (
-                        <div
-                          key={`refinance-${index}`}
-                          className="flex justify-between items-center text-xs p-2 bg-blue-50 rounded"
-                        >
-                          <span>
-                            Refinanced Property {refinance.property_id}
-                          </span>
-                          <span className="font-medium">
-                            {formatCurrency(refinance.cash_extracted)} extracted
-                          </span>
-                        </div>
-                      ),
-                    )}
+              {strategy.events.chronological_events &&
+                strategy.events.chronological_events.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="font-medium text-sm text-gray-600 mb-3">
+                      Major Events Timeline (Chronological)
+                    </h4>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {strategy.events.chronological_events.map(
+                        (event, index) => (
+                          <div
+                            key={`event-${index}`}
+                            className={`flex justify-between items-center text-xs p-2 rounded ${
+                              event.type === "purchase"
+                                ? "bg-green-50"
+                                : event.type === "refinance"
+                                  ? "bg-blue-50"
+                                  : "bg-yellow-50"
+                            }`}
+                          >
+                            <span>
+                              <span className="font-medium text-gray-600">
+                                {formatPeriod(event.period)}:
+                              </span>{" "}
+                              {event.type === "purchase" &&
+                                `Purchased Property ${event.property_id}`}
+                              {event.type === "refinance" &&
+                                `Refinanced Property ${event.property_id}`}
+                              {event.type === "capital_injection" &&
+                                `Capital Injection`}
+                            </span>
+                            <span className="font-medium">
+                              {event.type === "purchase" &&
+                                formatCurrency(event.purchase_price as number)}
+                              {event.type === "refinance" &&
+                                `${formatCurrency(event.cash_extracted as number)} extracted`}
+                              {event.type === "capital_injection" &&
+                                formatCurrency(event.amount as number)}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </CardContent>
           </Card>
 

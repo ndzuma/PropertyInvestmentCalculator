@@ -213,8 +213,23 @@ class PropertyPortfolioSimulator:
         # Initialize portfolio
         portfolio = self._initialize_portfolio()
 
+        # Create initial property purchase event for the first property
+        initial_purchase_events = []
+        if len(portfolio["properties"]) > 0:
+            first_property = portfolio["properties"][0]
+            initial_purchase = PropertyPurchase(
+                property_id=first_property.property_id,
+                purchase_price=first_property.purchase_price,
+                cash_required=portfolio["initial_cash_required"],
+                financing_type=first_property.financing_type,
+                loan_amount=first_property.loan_amount,
+            )
+            initial_purchase_events.append(initial_purchase)
+
         # Create initial snapshot (period 0)
-        snapshot = self._create_detailed_snapshot(portfolio, 0, [], [], [])
+        snapshot = self._create_detailed_snapshot(
+            portfolio, 0, [], initial_purchase_events, []
+        )
         all_snapshots = [snapshot]
 
         # Run simulation monthly
@@ -350,7 +365,7 @@ class PropertyPortfolioSimulator:
             + self.base_property.acquisition_costs.transfer_duty
             + self.base_property.acquisition_costs.conveyancing_fees
             + self.base_property.acquisition_costs.bond_registration
-            + self.base_property.acquisition_costs.furnishing_cost
+            + (self.base_property.acquisition_costs.furnishing_cost or 0.0)
         )
 
         # Create first property
@@ -373,9 +388,16 @@ class PropertyPortfolioSimulator:
             "cash_available": available_cash - cash_required,
             "property_counter": 1,
             "total_additional_capital_injected": 0.0,
+            "initial_cash_required": cash_required,  # Store for initial purchase event
         }
 
         return portfolio
+
+    def _calculate_initial_cash_required(self) -> float:
+        """Calculate cash required for the initial property purchase"""
+        # This will be stored in portfolio during initialization
+        # and retrieved when creating the initial purchase event
+        return 0.0  # Placeholder, actual value comes from portfolio
 
     def _calculate_monthly_payment(self, loan_amount: float) -> float:
         """Calculate monthly payment for a given loan amount"""
@@ -574,7 +596,7 @@ class PropertyPortfolioSimulator:
                     + self.base_property.acquisition_costs.transfer_duty
                     + self.base_property.acquisition_costs.conveyancing_fees
                     + self.base_property.acquisition_costs.bond_registration
-                    + self.base_property.acquisition_costs.furnishing_cost
+                    + (self.base_property.acquisition_costs.furnishing_cost or 0.0)
                 )
 
                 # Create new property
