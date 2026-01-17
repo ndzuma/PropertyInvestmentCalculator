@@ -326,7 +326,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 else:
                     down_payment = prop.purchase_price
 
-                # Calculate cost basis breakdown (estimated)
+                # Calculate cost basis breakdown using template property costs
                 acquisition_costs = property_investment.acquisition_costs
                 cost_basis_breakdown = PropertyCostBasis(
                     down_payment=down_payment,

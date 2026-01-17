@@ -584,14 +584,8 @@ class PropertyPortfolioSimulator:
                 else:
                     monthly_payment = 0
 
-                # Calculate cost basis (total cash invested in property)
-                cost_basis = (
-                    purchase_price
-                    + self.base_property.acquisition_costs.transfer_duty
-                    + self.base_property.acquisition_costs.conveyancing_fees
-                    + self.base_property.acquisition_costs.bond_registration
-                    + (self.base_property.acquisition_costs.furnishing_cost or 0.0)
-                )
+                # Calculate cost basis (actual cash invested in property)
+                cost_basis = cash_required
 
                 # Create new property
                 new_property = PropertyData(
@@ -704,36 +698,13 @@ class PropertyPortfolioSimulator:
         return effective_monthly_rent - monthly_expenses - bond_payment
 
     def _calculate_total_cash_invested(self, portfolio: Dict[str, Any]) -> float:
-        """Calculate total cash invested in a property"""
+        """Calculate total cash invested across all properties"""
+        # Sum the actual cost_basis of all properties
+        total_cash_invested = 0.0
+        for property_data in portfolio["properties"]:
+            total_cash_invested += property_data.cost_basis
 
-        # Initial cash investment
-        acquisition_costs = self.base_property.acquisition_costs
-        total_acquisition_cost = (
-            acquisition_costs.purchase_price
-            + acquisition_costs.transfer_duty
-            + acquisition_costs.conveyancing_fees
-            + acquisition_costs.bond_registration
-            + (acquisition_costs.furnishing_cost or 0.0)
-        )
-
-        # Initial cash required
-        if self.base_property.financing.financing_type == FinancingType.CASH:
-            initial_cash = total_acquisition_cost
-        else:
-            down_payment = acquisition_costs.purchase_price * (
-                1 - self.base_property.financing.ltv_ratio
-            )
-            initial_cash = (
-                down_payment
-                + acquisition_costs.transfer_duty
-                + acquisition_costs.conveyancing_fees
-                + acquisition_costs.bond_registration
-                + (acquisition_costs.furnishing_cost or 0.0)
-            )
-
-        # For multiple properties, scale by number of properties
-        num_properties = len(portfolio["properties"])
-        return initial_cash * num_properties
+        return total_cash_invested
 
     def _create_detailed_snapshot(
         self,
