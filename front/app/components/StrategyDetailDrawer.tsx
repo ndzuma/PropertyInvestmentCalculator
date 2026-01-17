@@ -277,10 +277,7 @@ export default function StrategyDetailDrawer({
                   </h4>
                   <p className="text-lg font-semibold text-indigo-600">
                     {formatCurrency(
-                      finalSnapshot.properties?.reduce(
-                        (sum, prop) => sum + prop.annual_rental_income,
-                        0,
-                      ) || 0,
+                      strategy.summary.total_annual_rental_income,
                     )}
                   </p>
                 </div>
@@ -290,12 +287,7 @@ export default function StrategyDetailDrawer({
                     Annual Expenses
                   </h4>
                   <p className="text-lg font-semibold text-red-600">
-                    {formatCurrency(
-                      finalSnapshot.properties?.reduce(
-                        (sum, prop) => sum + prop.annual_expenses,
-                        0,
-                      ) || 0,
-                    )}
+                    {formatCurrency(strategy.summary.total_annual_expenses)}
                   </p>
                 </div>
               </div>
@@ -353,8 +345,8 @@ export default function StrategyDetailDrawer({
                 </div>
 
                 {/* Property Details Table */}
-                {finalSnapshot.properties &&
-                  finalSnapshot.properties.length > 0 && (
+                {strategy.summary.properties &&
+                  strategy.summary.properties.length > 0 && (
                     <div className="mt-4">
                       <h4 className="font-medium text-sm text-gray-600 mb-3">
                         Individual Properties
@@ -377,7 +369,7 @@ export default function StrategyDetailDrawer({
                             </tr>
                           </thead>
                           <tbody>
-                            {finalSnapshot.properties.map((property) => (
+                            {strategy.summary.properties.map((property) => (
                               <tr
                                 key={property.property_id}
                                 className="border-b"
@@ -392,31 +384,23 @@ export default function StrategyDetailDrawer({
                                   {formatCurrency(property.loan_amount)}
                                 </td>
                                 <td className="text-right p-2">
-                                  {formatCurrency(
-                                    property.current_value -
-                                      property.loan_amount,
-                                  )}
+                                  {formatCurrency(property.current_equity)}
                                 </td>
                                 <td className="text-right p-2">
-                                  {property.current_value > 0
-                                    ? formatPercentage(
-                                        property.loan_amount /
-                                          property.current_value,
-                                      )
-                                    : "0%"}
+                                  {formatPercentage(property.ltv_ratio / 100)}
                                 </td>
                                 <td className="text-right p-2">
                                   {formatCurrency(
-                                    property.annual_rental_income / 12,
+                                    property.monthly_rental_income,
                                   )}
                                 </td>
                                 <td className="text-right p-2">
                                   {formatCurrency(
-                                    property.annual_expenses / 12,
+                                    property.monthly_expenses.total,
                                   )}
                                 </td>
                                 <td className="text-right p-2">
-                                  {formatCurrency(property.cost_basis)}
+                                  {formatCurrency(property.cost_basis.total)}
                                 </td>
                                 <td className="text-right p-2">
                                   {formatCurrency(property.monthly_cashflow)}
@@ -426,6 +410,144 @@ export default function StrategyDetailDrawer({
                           </tbody>
                         </table>
                       </div>
+                    </div>
+                  )}
+
+                {/* Detailed Property Breakdown */}
+                {strategy.summary.properties &&
+                  strategy.summary.properties.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="font-medium text-sm text-gray-600 mb-3">
+                        Detailed Breakdown (First Property)
+                      </h4>
+                      {(() => {
+                        const property = strategy.summary.properties[0];
+                        return (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Cost Basis Breakdown */}
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                              <h5 className="font-semibold text-blue-900 mb-2">
+                                Cost Basis Breakdown
+                              </h5>
+                              <div className="space-y-1 text-xs">
+                                <div className="flex justify-between">
+                                  <span>Down Payment:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.cost_basis.down_payment,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Transfer Duty:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.cost_basis.transfer_duty,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Conveyancing:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.cost_basis.conveyancing_fees,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Bond Registration:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.cost_basis.bond_registration,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Furnishing:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.cost_basis.furnishing_costs,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between border-t border-blue-200 pt-1">
+                                  <span className="font-semibold">Total:</span>
+                                  <span className="font-bold">
+                                    {formatCurrency(property.cost_basis.total)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Monthly Expenses Breakdown */}
+                            <div className="bg-red-50 p-3 rounded-lg">
+                              <h5 className="font-semibold text-red-900 mb-2">
+                                Monthly Expenses Breakdown
+                              </h5>
+                              <div className="space-y-1 text-xs">
+                                <div className="flex justify-between">
+                                  <span>Mortgage Payment:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.monthly_expenses
+                                        .mortgage_payment,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Management Fees:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.monthly_expenses.management_fees,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Insurance:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.monthly_expenses.insurance,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Maintenance:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.monthly_expenses.maintenance,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Levies:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.monthly_expenses.levies,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Furnishing Repairs:</span>
+                                  <span className="font-medium">
+                                    {formatCurrency(
+                                      property.monthly_expenses
+                                        .furnishing_repair_costs,
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between border-t border-red-200 pt-1">
+                                  <span className="font-semibold">Total:</span>
+                                  <span className="font-bold">
+                                    {formatCurrency(
+                                      property.monthly_expenses.total,
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
               </div>

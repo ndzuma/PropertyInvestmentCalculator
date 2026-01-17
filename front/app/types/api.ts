@@ -71,6 +71,80 @@ export interface SimulationRequest {
   appreciation_rate: number;
 }
 
+export interface PropertyExpenses {
+  mortgage_payment: number;
+  property_taxes: number;
+  insurance: number;
+  maintenance: number;
+  management_fees: number;
+  levies: number;
+  furnishing_repair_costs: number;
+  total: number;
+}
+
+export interface PropertyCostBasis {
+  down_payment: number;
+  transfer_duty: number;
+  conveyancing_fees: number;
+  bond_registration: number;
+  furnishing_costs: number;
+  total: number;
+}
+
+export interface PropertyDetail {
+  // Basic Property Info
+  property_id: number;
+  purchase_price: number;
+  current_value: number;
+  purchase_date?: string;
+  months_owned: number;
+
+  // Financing Details
+  loan_amount: number;
+  down_payment: number;
+  interest_rate: number;
+  loan_term_months: number;
+  financing_type: string;
+
+  // Mortgage Details
+  monthly_mortgage_payment: number;
+  monthly_principal: number;
+  monthly_interest: number;
+  remaining_loan_balance: number;
+  months_remaining: number;
+  ltv_ratio: number;
+
+  // Income & Expenses Breakdown
+  monthly_rental_income: number;
+  annual_rental_income: number;
+  monthly_expenses: PropertyExpenses;
+  annual_expenses: number;
+
+  // Cash Flow & Performance
+  monthly_cashflow: number;
+  annual_cashflow: number;
+  cash_on_cash_return: number;
+  cap_rate: number;
+
+  // Investment Tracking
+  cost_basis: PropertyCostBasis;
+  total_cash_invested: number;
+  current_equity: number;
+  equity_growth: number;
+
+  // Yield Calculations
+  gross_rental_yield: number;
+  net_rental_yield: number;
+
+  // Appreciation Tracking
+  appreciation_amount: number;
+  appreciation_percentage: number;
+
+  // Performance Metrics
+  roi_percentage: number;
+  total_return: number;
+}
+
 export interface StrategySummary {
   final_property_count: number;
   final_portfolio_value: number;
@@ -94,6 +168,9 @@ export interface StrategySummary {
   loan_to_value_ratio: number;
   total_annual_rental_income: number;
   total_annual_expenses: number;
+
+  // Comprehensive property details
+  properties: PropertyDetail[];
 }
 
 export interface PropertyData {
@@ -183,6 +260,7 @@ export interface StrategyResult {
       [key: string]: unknown;
     }>;
   };
+  properties: PropertyDetail[];
 }
 
 export interface SimulationResponse {
