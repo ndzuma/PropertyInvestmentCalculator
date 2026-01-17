@@ -478,6 +478,16 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 }
                 snapshot_dicts.append(snapshot_dict)
 
+            # Collect all events across all snapshots
+            all_property_purchases = []
+            all_refinancing_events = []
+            all_capital_injections = []
+
+            for snapshot in snapshots:
+                all_property_purchases.extend(snapshot.property_purchases)
+                all_refinancing_events.extend(snapshot.refinancing_events)
+                all_capital_injections.extend(snapshot.capital_injections)
+
             # Convert events to dictionaries
             events = {
                 "property_purchases": [
@@ -488,7 +498,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                         "cash_required": event.cash_required,
                         "loan_amount": event.loan_amount,
                     }
-                    for event in final_snapshot.property_purchases
+                    for event in all_property_purchases
                 ],
                 "refinancing_events": [
                     {
@@ -498,7 +508,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                         "old_loan_amount": event.old_loan_amount,
                         "new_ltv": event.new_ltv,
                     }
-                    for event in final_snapshot.refinancing_events
+                    for event in all_refinancing_events
                 ],
                 "capital_injections": [
                     {
@@ -506,7 +516,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                         "source": event.source,
                         "total_additional_capital_to_date": event.total_additional_capital_to_date,
                     }
-                    for event in final_snapshot.capital_injections
+                    for event in all_capital_injections
                 ],
             }
 
