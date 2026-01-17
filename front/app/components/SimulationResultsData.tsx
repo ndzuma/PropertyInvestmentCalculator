@@ -1,6 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { StrategyResult } from "../types/api";
+import StrategyDetailDrawer from "./StrategyDetailDrawer";
 
 interface SimulationResultsDataProps {
   results: StrategyResult[];
@@ -55,14 +57,27 @@ export default function SimulationResultsData({
                     >
                       {/* Strategy Header */}
                       <div className="mb-4">
-                        <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                          {result.strategy_name}
-                        </h4>
-                        {result.summary.simulation_ended && (
-                          <span className="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
-                            Ended Early: {result.summary.end_reason}
-                          </span>
-                        )}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-gray-900 text-sm mb-1">
+                              {result.strategy_name}
+                            </h4>
+                            {result.summary.simulation_ended && (
+                              <span className="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
+                                Ended Early: {result.summary.end_reason}
+                              </span>
+                            )}
+                          </div>
+                          <StrategyDetailDrawer
+                            strategy={result}
+                            currency={currency}
+                            trigger={
+                              <Button variant="outline" size="sm">
+                                More detail
+                              </Button>
+                            }
+                          />
+                        </div>
                       </div>
 
                       {/* Key Metrics */}
