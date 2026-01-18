@@ -2,6 +2,12 @@
 
 A comprehensive property investment simulation tool that helps analyze different investment strategies, compare returns, and optimize portfolio decisions.
 
+## Why I Built This
+
+I created this tool to accurately simulate multiple property investing strategies - from different leveraged approaches to fully cash purchases, and everything in between. The real catalyst? My mom wanted to know where to buy an investment property, and I wanted to build her a simple yet sophisticated calculator that could actually answer her questions properly.
+
+As for the tech stack - I just love how straightforward FastAPI is, and I can move incredibly fast with Next.js. Plus, the App Router might be my favorite web feature ever. Python lets me prototype at lightning speed, and well... one thing led to another and here we are with a full-blown investment calculator that spiraled way beyond what mom originally asked for. 🚀
+
 ## What it does
 
 - **Compare Investment Strategies**: Cash vs leveraged vs mixed approaches
