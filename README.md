@@ -115,6 +115,34 @@ CORS_ORIGINS=*
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
+## Development Roadmap
+
+Planned features and improvements, ordered from simplest to most complex:
+
+### 🟢 Simple (Quick Wins)
+- **Dockerization** - Add Dockerfile for easy homelab deployment
+- **HTTP Status Codes** - Improve API status code support for better monitoring
+- **Rate Limiting** - Add API rate limiting to prevent abuse
+- **Load Test Data** - Create comprehensive test datasets
+
+### 🟡 Medium Complexity
+- **Enhanced Error Handling** - Detailed error responses for better monitoring and debugging
+- **Save/Load Simulation Data** - Persist and restore simulation configurations
+- **Backend Testing Suite** - Bulletproof calculation testing and validation
+- **Taxation Support** - Add tax calculations for different scenarios
+
+### 🟠 Complex Features  
+- **User Accounts** - Save simulation history, add notes, user preferences
+- **Country-Specific Settings** - Localized mortgage rates, taxes, and regulations (ZA, UK, etc.)
+
+### 🔴 Advanced (Long-term)
+- **Rental Price Predictor AI** - Machine learning model for rental price predictions
+  - Phase 1: Preset models for common areas
+  - Phase 2: Custom model upload and training
+  - Phase 3: Real-time market data integration
+
+Each feature will be developed with proper testing, documentation, and backwards compatibility.
+
 ## Contributing
 
 1. Fork the repository
