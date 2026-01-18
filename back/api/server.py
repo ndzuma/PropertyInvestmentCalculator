@@ -1,7 +1,12 @@
+import os
 from typing import List
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
+# Load environment variables from .env file
+load_dotenv()
 
 from .endpoints import get_presets, simulate_strategies, validate_parameters
 from .models import (
@@ -19,10 +24,17 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Configure CORS origins from environment variable
+cors_origins = os.getenv("CORS_ORIGINS", "*")
+if cors_origins == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [origin.strip() for origin in cors_origins.split(",")]
+
 # Add CORS middleware for web frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure for production
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -10,6 +10,7 @@ import {
   SimulationResponse,
   StrategyResult,
 } from "./types/api";
+import { apiRequest } from "@/lib/api-config";
 import SettingsBar from "./components/SettingsBar";
 import PropertyDetails from "./components/PropertyDetails";
 import OperatingExpenses from "./components/OperatingExpenses";
@@ -95,19 +96,10 @@ export default function Home() {
         appreciation_rate: appreciationRate,
       };
 
-      const response = await fetch("http://localhost:8001/simulate", {
+      const data = await apiRequest<SimulationResponse>("simulate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(request),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: SimulationResponse = await response.json();
 
       if (data.success) {
         setSimulationResults(data.results);

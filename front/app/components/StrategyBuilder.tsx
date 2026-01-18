@@ -7,6 +7,7 @@ import {
   RefineFrequency,
   StrategyPreset,
 } from "../types/api";
+import { apiRequest } from "@/lib/api-config";
 import {
   InputGroup,
   InputGroupAddon,
@@ -49,11 +50,8 @@ export default function StrategyBuilder({
     const loadPresets = async () => {
       setLoadingPresets(true);
       try {
-        const response = await fetch("http://localhost:8001/strategy-presets");
-        if (response.ok) {
-          const data = await response.json();
-          setPresets(data);
-        }
+        const data = await apiRequest<StrategyPreset[]>("strategyPresets");
+        setPresets(data);
       } catch (error) {
         console.error("Failed to load presets:", error);
       }
