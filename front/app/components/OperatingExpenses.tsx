@@ -47,7 +47,7 @@ export default function OperatingExpenses({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={operating.monthly_rental_income}
+              value={operating.monthly_rental_income || ""}
               onChange={(e) =>
                 updateOperating("monthly_rental_income", Number(e.target.value))
               }
@@ -64,7 +64,7 @@ export default function OperatingExpenses({
           <InputGroup>
             <InputGroupInput
               type="number"
-              value={operating.vacancy_rate * 100}
+              value={operating.vacancy_rate * 100 || ""}
               onChange={(e) =>
                 updateOperating("vacancy_rate", Number(e.target.value) / 100)
               }
@@ -85,7 +85,7 @@ export default function OperatingExpenses({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={operating.monthly_levies}
+              value={operating.monthly_levies || ""}
               onChange={(e) =>
                 updateOperating("monthly_levies", Number(e.target.value))
               }
@@ -102,7 +102,7 @@ export default function OperatingExpenses({
           <InputGroup>
             <InputGroupInput
               type="number"
-              value={operating.property_management_fee_rate * 100}
+              value={operating.property_management_fee_rate * 100 || ""}
               onChange={(e) =>
                 updateOperating(
                   "property_management_fee_rate",
@@ -129,7 +129,7 @@ export default function OperatingExpenses({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={operating.monthly_insurance}
+              value={operating.monthly_insurance || ""}
               onChange={(e) =>
                 updateOperating("monthly_insurance", Number(e.target.value))
               }
@@ -147,7 +147,7 @@ export default function OperatingExpenses({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={operating.monthly_maintenance_reserve}
+              value={operating.monthly_maintenance_reserve || ""}
               onChange={(e) =>
                 updateOperating(
                   "monthly_maintenance_reserve",
@@ -168,7 +168,7 @@ export default function OperatingExpenses({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={operating.monthly_furnishing_repair_costs || 0}
+              value={operating.monthly_furnishing_repair_costs || ""}
               onChange={(e) =>
                 updateOperating(
                   "monthly_furnishing_repair_costs",

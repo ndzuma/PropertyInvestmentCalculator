@@ -47,7 +47,7 @@ export default function PropertyDetails({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={property.purchase_price}
+              value={property.purchase_price || ""}
               onChange={(e) =>
                 updateProperty("purchase_price", Number(e.target.value))
               }
@@ -65,7 +65,7 @@ export default function PropertyDetails({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={property.transfer_duty}
+              value={property.transfer_duty || ""}
               onChange={(e) =>
                 updateProperty("transfer_duty", Number(e.target.value))
               }
@@ -83,7 +83,7 @@ export default function PropertyDetails({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={property.conveyancing_fees}
+              value={property.conveyancing_fees || ""}
               onChange={(e) =>
                 updateProperty("conveyancing_fees", Number(e.target.value))
               }
@@ -101,7 +101,7 @@ export default function PropertyDetails({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={property.bond_registration}
+              value={property.bond_registration || ""}
               onChange={(e) =>
                 updateProperty("bond_registration", Number(e.target.value))
               }
@@ -122,7 +122,7 @@ export default function PropertyDetails({
             <InputGroupAddon>{currency}</InputGroupAddon>
             <InputGroupInput
               type="number"
-              value={property.furnishing_cost || 0}
+              value={property.furnishing_cost || ""}
               onChange={(e) =>
                 updateProperty("furnishing_cost", Number(e.target.value))
               }
