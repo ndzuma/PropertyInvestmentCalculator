@@ -1,0 +1,22 @@
+{
+  "countries": [
+    {
+      "id": "south-africa",
+      "name": "South Africa",
+      "code": "ZA",
+      "currency": "R",
+      "flag": "🇿🇦",
+      "filename": "south-africa.json",
+      "description": "South African property investment markets"
+    },
+    {
+      "id": "united-kingdom",
+      "name": "United Kingdom",
+      "code": "GB",
+      "currency": "£",
+      "flag": "🇬🇧",
+      "filename": "united-kingdom.json",
+      "description": "UK buy-to-let property markets"
+    }
+  ]
+}

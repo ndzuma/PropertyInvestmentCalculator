@@ -1,3 +1,4 @@
+import concurrent.futures
 from typing import List
 
 from core.main import (
@@ -192,21 +193,21 @@ def create_strategy_config(
 
     if strategy_request.strategy_type == "cash_only":
         return create_cash_strategy(
+            months=strategy_request.simulation_months,
             reinvestment=strategy_request.reinvest_cashflow,
             tracking=TrackingFrequency.MONTHLY,
-            months=strategy_request.simulation_months,
             additional_capital_injections=capital_injections,
         )
 
     elif strategy_request.strategy_type == "leveraged":
         refinance_years = convert_refinance_frequency_to_years(strategy_request)
         return create_leveraged_strategy(
+            months=strategy_request.simulation_months,
             leverage_ratio=strategy_request.ltv_ratio,
             refinancing=strategy_request.enable_refinancing,
             refinance_years=refinance_years,
             reinvestment=strategy_request.reinvest_cashflow,
             tracking=TrackingFrequency.MONTHLY,
-            months=strategy_request.simulation_months,
             additional_capital_injections=capital_injections,
         )
 
@@ -219,6 +220,7 @@ def create_strategy_config(
 
         refinance_years = convert_refinance_frequency_to_years(strategy_request)
         return create_mixed_strategy(
+            months=strategy_request.simulation_months,
             leveraged_property_ratio=strategy_request.leveraged_property_ratio,
             cash_property_ratio=strategy_request.cash_property_ratio,
             leverage_ratio=strategy_request.ltv_ratio,
@@ -227,12 +229,17 @@ def create_strategy_config(
             refinance_years=refinance_years,
             reinvestment=strategy_request.reinvest_cashflow,
             tracking=TrackingFrequency.MONTHLY,
-            months=strategy_request.simulation_months,
             additional_capital_injections=capital_injections,
         )
 
     else:
         raise ValueError(f"Unknown strategy type: {strategy_request.strategy_type}")
+
+
+def _run_single_simulation(strategy_request, property_investment, strategy_config):
+    """Helper function to run a single simulation - used for timeout"""
+    simulator = PropertyPortfolioSimulator(property_investment, strategy_config)
+    return simulator.simulate()
 
 
 def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
@@ -277,9 +284,22 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                     strategy_request.target_refinance_ltv
                 )
 
-            # Run simulation
-            simulator = PropertyPortfolioSimulator(property_investment, strategy_config)
-            snapshots = simulator.simulate()
+            # Run simulation with timeout
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(
+                    _run_single_simulation,
+                    strategy_request,
+                    property_investment,
+                    strategy_config,
+                )
+                try:
+                    snapshots = future.result(timeout=5.0)  # 5 second timeout
+                except concurrent.futures.TimeoutError:
+                    return SimulationResponse(
+                        success=False,
+                        results=[],
+                        error=f"Simulation timed out after 5 seconds for strategy '{strategy_request.name}'. This may be due to an infinite loop in property acquisition.",
+                    )
 
             # Convert results to API format with enhanced metrics
             final_snapshot = snapshots[-1]

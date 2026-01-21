@@ -16,10 +16,9 @@ export const metadata: Metadata = {
   title: "Property Investment Calculator",
   description:
     "Comprehensive property investment simulation tool for analyzing different investment strategies, comparing returns, and optimizing portfolio decisions.",
-  author: "Ndzuma Malate",
+  authors: [{ name: "Ndzuma Malate" }],
   keywords:
     "property investment, real estate calculator, investment strategy, portfolio analysis, property simulation",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

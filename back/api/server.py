@@ -2,11 +2,17 @@ import os
 from typing import List
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Create rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 from .endpoints import get_presets, simulate_strategies, validate_parameters
 from .models import (
@@ -23,6 +29,10 @@ app = FastAPI(
     description="API for running property investment simulations and strategy comparisons",
     version="1.0.0",
 )
+
+# Add rate limiting middleware
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configure CORS origins from environment variable
 cors_origins = os.getenv("CORS_ORIGINS", "*")
@@ -58,23 +68,27 @@ def health_check():
 
 
 @app.post("/simulate", response_model=SimulationResponse)
-def simulate_endpoint(request: SimulationRequest):
+@limiter.limit("10/minute")
+def simulate_endpoint(request: Request, simulation_request: SimulationRequest):
     """
     Run property investment simulations for multiple strategies.
 
     Takes property details, operating parameters, available capital,
     capital injections, and multiple strategies to compare.
     Returns detailed results for each strategy.
+
+    Rate limited to 10 requests per minute per IP address.
     """
     try:
-        result = simulate_strategies(request)
+        result = simulate_strategies(simulation_request)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Simulation failed: {str(e)}")
 
 
 @app.get("/strategy-presets", response_model=List[StrategyPreset])
-def strategy_presets_endpoint():
+@limiter.limit("100/minute")
+def strategy_presets_endpoint(request: Request):
     """Get predefined strategy presets for quick testing"""
     try:
         presets = get_presets()
@@ -84,10 +98,11 @@ def strategy_presets_endpoint():
 
 
 @app.post("/validate", response_model=ValidationResponse)
-def validate_endpoint(request: SimulationRequest):
+@limiter.limit("100/minute")
+def validate_endpoint(request: Request, validation_request: SimulationRequest):
     """Validate simulation parameters without running simulation"""
     try:
-        result = validate_parameters(request)
+        result = validate_parameters(validation_request)
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Validation failed: {str(e)}")

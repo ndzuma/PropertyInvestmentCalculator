@@ -1,0 +1,80 @@
+{
+  "id": "custom-simulation",
+  "name": "Custom Property Investment",
+  "description": "R2M capital with R1.65M property - multiple strategy comparison",
+  "created_date": "2024-01-15",
+  "settings": {
+    "availableCapital": 2000000,
+    "simulationMonths": 120,
+    "currency": "R",
+    "appreciationRate": 0.03
+  },
+  "property": {
+    "purchase_price": 1650000,
+    "transfer_duty": 13200,
+    "conveyancing_fees": 25300,
+    "bond_registration": 3000,
+    "furnishing_cost": 80000
+  },
+  "operating": {
+    "monthly_rental_income": 16500,
+    "vacancy_rate": 0.08,
+    "monthly_levies": 1800,
+    "property_management_fee_rate": 0.08,
+    "monthly_insurance": 900,
+    "monthly_maintenance_reserve": 1200,
+    "monthly_furnishing_repair_costs": 400
+  },
+  "capitalInjections": [],
+  "strategies": [
+    {
+      "name": "Balanced Refinance Strategy",
+      "strategy_type": "leveraged",
+      "reinvest_cashflow": true,
+      "ltv_ratio": 0.5,
+      "interest_rate": 0.1125,
+      "loan_term_years": 20,
+      "enable_refinancing": true,
+      "refinance_frequency": "other",
+      "custom_refinance_months": 36,
+      "target_refinance_ltv": 0.5
+    },
+    {
+      "name": "Cash Only Strategy",
+      "strategy_type": "cash_only",
+      "reinvest_cashflow": true,
+      "enable_refinancing": false,
+      "refinance_frequency": "never"
+    },
+    {
+      "name": "Balanced Mix Portfolio",
+      "strategy_type": "mixed",
+      "reinvest_cashflow": true,
+      "leveraged_property_ratio": 0.6,
+      "cash_property_ratio": 0.4,
+      "first_property_type": "leveraged",
+      "ltv_ratio": 0.5,
+      "interest_rate": 0.1125,
+      "loan_term_years": 20,
+      "enable_refinancing": true,
+      "refinance_frequency": "other",
+      "custom_refinance_months": 36,
+      "target_refinance_ltv": 0.5
+    },
+    {
+      "name": "Conservative Mix Portfolio",
+      "strategy_type": "mixed",
+      "reinvest_cashflow": true,
+      "leveraged_property_ratio": 0.3,
+      "cash_property_ratio": 0.7,
+      "first_property_type": "leveraged",
+      "ltv_ratio": 0.5,
+      "interest_rate": 0.1125,
+      "loan_term_years": 20,
+      "enable_refinancing": true,
+      "refinance_frequency": "other",
+      "custom_refinance_months": 36,
+      "target_refinance_ltv": 0.5
+    }
+  ]
+}

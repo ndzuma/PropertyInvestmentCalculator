@@ -1,0 +1,158 @@
+{
+  "id": "united-kingdom",
+  "name": "United Kingdom",
+  "code": "GB",
+  "currency": "£",
+  "flag": "🇬🇧",
+  "regions": [
+    {
+      "id": "england",
+      "name": "England",
+      "type": "country",
+      "cities": [
+        {
+          "id": "london",
+          "name": "London",
+          "suburbs": [],
+          "settings": {
+            "currency": "£",
+            "mortgage": {
+              "default_interest_rate": 0.058,
+              "max_ltv": 0.75,
+              "default_term_years": 25
+            },
+            "market": {
+              "appreciation_rate": 0.07,
+              "vacancy_rate": 0.05,
+              "property_management_fee_rate": 0.10
+            },
+            "fees": {
+              "transfer_duty_rate": 0.03,
+              "conveyancing_fees": 2500,
+              "bond_registration": 1200,
+              "insurance_rate": 0.0005
+            },
+            "investor_type_settings": {
+              "local": {
+                "mortgage": {
+                  "max_ltv": null,
+                  "default_interest_rate": 0.055
+                }
+              },
+              "international": {
+                "mortgage": {
+                  "max_ltv": 0.65,
+                  "default_interest_rate": 0.065
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "manchester",
+          "name": "Manchester",
+          "suburbs": [],
+          "settings": {
+            "currency": "£",
+            "mortgage": {
+              "default_interest_rate": 0.055,
+              "max_ltv": 0.75,
+              "default_term_years": 25
+            },
+            "market": {
+              "appreciation_rate": 0.05,
+              "vacancy_rate": 0.06,
+              "property_management_fee_rate": 0.09
+            },
+            "fees": {
+              "transfer_duty_rate": 0.03,
+              "conveyancing_fees": 2200,
+              "bond_registration": 1200,
+              "insurance_rate": 0.0005
+            },
+            "investor_type_settings": {
+              "local": {
+                "mortgage": {
+                  "max_ltv": null,
+                  "default_interest_rate": 0.055
+                }
+              },
+              "international": {
+                "mortgage": {
+                  "max_ltv": 0.65,
+                  "default_interest_rate": 0.065
+                }
+              }
+            }
+          }
+        }
+      ],
+      "settings": {
+        "currency": "£",
+        "mortgage": {
+          "default_interest_rate": 0.055,
+          "max_ltv": 0.75,
+          "default_term_years": 25
+        },
+        "market": {
+          "appreciation_rate": 0.06,
+          "vacancy_rate": 0.06,
+          "property_management_fee_rate": 0.10
+        },
+        "fees": {
+          "transfer_duty_rate": 0.03,
+          "conveyancing_fees": 2300,
+          "bond_registration": 1200,
+          "insurance_rate": 0.0005
+        },
+        "investor_type_settings": {
+          "local": {
+            "mortgage": {
+              "max_ltv": null,
+              "default_interest_rate": 0.055
+            }
+          },
+          "international": {
+            "mortgage": {
+              "max_ltv": 0.65,
+              "default_interest_rate": 0.065
+            }
+          }
+        }
+      }
+    }
+  ],
+  "settings": {
+    "currency": "£",
+    "mortgage": {
+      "default_interest_rate": 0.055,
+      "max_ltv": 0.75,
+      "default_term_years": 25
+    },
+    "market": {
+      "appreciation_rate": 0.06,
+      "vacancy_rate": 0.06,
+      "property_management_fee_rate": 0.10
+    },
+    "fees": {
+      "transfer_duty_rate": 0.03,
+      "conveyancing_fees": 2500,
+      "bond_registration": 1200,
+      "insurance_rate": 0.0005
+    },
+    "investor_type_settings": {
+      "local": {
+        "mortgage": {
+          "max_ltv": null,
+          "default_interest_rate": 0.055
+        }
+      },
+      "international": {
+        "mortgage": {
+          "max_ltv": 0.65,
+          "default_interest_rate": 0.065
+        }
+      }
+    }
+  }
+}

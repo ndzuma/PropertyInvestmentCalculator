@@ -23,22 +23,32 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { AlertTriangle } from "lucide-react";
 
 interface StrategyBuilderProps {
   onAddStrategy: (strategy: StrategyRequest) => void;
+  simulationMonths: number;
+  currentLtvRestriction: number | null;
+  selectedInvestorType: "local" | "international";
+  defaultInterestRate?: number;
 }
 
 export default function StrategyBuilder({
   onAddStrategy,
+  simulationMonths,
+  currentLtvRestriction,
+  selectedInvestorType,
+  defaultInterestRate,
 }: StrategyBuilderProps) {
   const [strategy, setStrategy] = useState<StrategyRequest>({
     name: "",
     strategy_type: "cash_only",
-    simulation_months: 120, // 10 years = 120 months
+    simulation_months: simulationMonths,
     reinvest_cashflow: false,
     enable_refinancing: false,
     refinance_frequency: "never",
     custom_refinance_months: undefined,
+    interest_rate: defaultInterestRate,
   });
 
   const [presets, setPresets] = useState<StrategyPreset[]>([]);
@@ -61,6 +71,16 @@ export default function StrategyBuilder({
     loadPresets();
   }, []);
 
+  // Update strategy interest rate when default changes
+  useEffect(() => {
+    if (defaultInterestRate && strategy.strategy_type !== "cash_only") {
+      setStrategy((prev) => ({
+        ...prev,
+        interest_rate: defaultInterestRate,
+      }));
+    }
+  }, [defaultInterestRate]);
+
   const updateStrategy = (
     field: keyof StrategyRequest,
     value: string | number | boolean | undefined,
@@ -76,6 +96,16 @@ export default function StrategyBuilder({
         updated.custom_refinance_months = undefined;
       }
 
+      // Set default interest rate when strategy type changes to leveraged/mixed
+      if (
+        field === "strategy_type" &&
+        (value === "leveraged" || value === "mixed") &&
+        defaultInterestRate &&
+        !prev.interest_rate
+      ) {
+        updated.interest_rate = defaultInterestRate;
+      }
+
       return updated;
     });
   };
@@ -83,16 +113,32 @@ export default function StrategyBuilder({
   const loadPreset = (presetName: string) => {
     const preset = presets.find((p) => p.name === presetName);
     if (preset) {
-      setStrategy({
+      const baseStrategy: StrategyRequest = {
         name: preset.name,
         strategy_type: preset.strategy_type,
-        simulation_months: 120, // 10 years = 120 months
+        simulation_months: simulationMonths,
         reinvest_cashflow: false,
         enable_refinancing: false,
         refinance_frequency: "never",
         custom_refinance_months: undefined,
+      };
+
+      // Apply preset config
+      const strategyData = {
+        ...baseStrategy,
         ...preset.config,
-      });
+      } as StrategyRequest;
+
+      // Override preset interest rate with country default if available
+      if (
+        defaultInterestRate &&
+        (strategyData.strategy_type === "leveraged" ||
+          strategyData.strategy_type === "mixed")
+      ) {
+        strategyData.interest_rate = defaultInterestRate;
+      }
+
+      setStrategy(strategyData);
     }
   };
 
@@ -149,11 +195,12 @@ export default function StrategyBuilder({
     setStrategy({
       name: "",
       strategy_type: "cash_only",
-      simulation_months: 120, // 10 years = 120 months
+      simulation_months: simulationMonths,
       reinvest_cashflow: false,
       enable_refinancing: false,
       refinance_frequency: "never",
       custom_refinance_months: undefined,
+      interest_rate: defaultInterestRate,
     });
     setSelectedPreset("");
   };
@@ -248,6 +295,19 @@ export default function StrategyBuilder({
                   />
                   <InputGroupAddon align="inline-end">%</InputGroupAddon>
                 </InputGroup>
+                {/* LTV Warning for International Investors */}
+                {currentLtvRestriction &&
+                  selectedInvestorType === "international" &&
+                  strategy.ltv_ratio &&
+                  strategy.ltv_ratio > currentLtvRestriction && (
+                    <div className="flex items-center gap-2 mt-2 text-amber-700 bg-amber-50 p-2 rounded-md">
+                      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm">
+                        Warning: LTV exceeds international investor limit of{" "}
+                        {(currentLtvRestriction * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  )}
               </div>
 
               {/* Interest Rate */}

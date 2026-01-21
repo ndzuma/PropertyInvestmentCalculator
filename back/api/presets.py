@@ -12,7 +12,6 @@ def get_strategy_presets() -> List[StrategyPreset]:
             strategy_type=StrategyTypeEnum.CASH_ONLY,
             config={
                 "strategy_type": "cash_only",
-                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
             },
         ),
@@ -23,9 +22,8 @@ def get_strategy_presets() -> List[StrategyPreset]:
             config={
                 "strategy_type": "leveraged",
                 "ltv_ratio": 0.6,
-                "interest_rate": 0.10,
+                "interest_rate": 0.115,
                 "loan_term_years": 20,
-                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
                 "refinance_frequency": "annually",
@@ -39,9 +37,8 @@ def get_strategy_presets() -> List[StrategyPreset]:
             config={
                 "strategy_type": "leveraged",
                 "ltv_ratio": 0.8,
-                "interest_rate": 0.105,
+                "interest_rate": 0.125,
                 "loan_term_years": 20,
-                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
                 "refinance_frequency": "annually",
@@ -57,14 +54,12 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "leveraged_property_ratio": 0.6,
                 "cash_property_ratio": 0.4,
                 "ltv_ratio": 0.7,
-                "interest_rate": 0.10,
+                "interest_rate": 0.118,
                 "loan_term_years": 20,
-                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": True,
                 "refinance_frequency": "annually",
-                "target_refinance_ltv": 0.6,
-                "first_property_type": "leveraged",
+                "target_refinance_ltv": 0.5,
             },
         ),
         StrategyPreset(
@@ -76,13 +71,11 @@ def get_strategy_presets() -> List[StrategyPreset]:
                 "leveraged_property_ratio": 0.3,
                 "cash_property_ratio": 0.7,
                 "ltv_ratio": 0.5,
-                "interest_rate": 0.095,
+                "interest_rate": 0.112,
                 "loan_term_years": 25,
-                "simulation_months": 120,  # 10 years = 120 months
                 "reinvest_cashflow": True,
                 "enable_refinancing": False,
                 "refinance_frequency": "never",
-                "first_property_type": "cash",
             },
         ),
     ]

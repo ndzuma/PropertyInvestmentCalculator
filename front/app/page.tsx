@@ -9,6 +9,7 @@ import {
   SimulationRequest,
   SimulationResponse,
   StrategyResult,
+  SimulationPreset,
 } from "./types/api";
 import { apiRequest } from "@/lib/api-config";
 import SettingsBar from "./components/SettingsBar";
@@ -19,6 +20,9 @@ import StrategyBuilder from "./components/StrategyBuilder";
 import StrategyList from "./components/StrategyList";
 import SimulationResults from "./components/SimulationResults";
 import { Button } from "@/components/ui/button";
+import SimulationButtons from "./components/SimulationButtons";
+import CountrySelector from "./components/CountrySelector";
+import { CountrySettings } from "./types/api";
 
 export default function Home() {
   // Settings state
@@ -28,6 +32,15 @@ export default function Home() {
   const [simulationMonths, setSimulationMonths] = useState(120); // 10 years = 120 months
   const [currency, setCurrency] = useState("R");
   const [appreciationRate, setAppreciationRate] = useState(0.06); // Default 6% annual
+
+  // Country settings state
+  const [selectedInvestorType, setSelectedInvestorType] = useState<
+    "local" | "international"
+  >("local");
+  const [currentLtvRestriction, setCurrentLtvRestriction] = useState<
+    number | null
+  >(null);
+  const [defaultInterestRate, setDefaultInterestRate] = useState<number>();
 
   // Property state
   const [property, setProperty] = useState<PropertyRequest>({
@@ -77,6 +90,121 @@ export default function Home() {
     setStrategies(strategies.filter((_, i) => i !== index));
   };
 
+  const loadSimulation = (preset: SimulationPreset) => {
+    // Load all settings
+    setAvailableCapital(preset.settings.availableCapital);
+    setSimulationMonths(preset.settings.simulationMonths);
+    setCurrency(preset.settings.currency);
+    setAppreciationRate(preset.settings.appreciationRate);
+
+    // Load property details
+    setProperty(preset.property);
+
+    // Load operating expenses
+    setOperating(preset.operating);
+
+    // Load capital injections
+    setCapitalInjections(preset.capitalInjections);
+
+    // Load strategies with proper simulation months and current interest rates
+    const strategiesWithMonths = preset.strategies.map((strategy) => {
+      const updatedStrategy = {
+        ...strategy,
+        simulation_months: preset.settings.simulationMonths,
+      };
+
+      // Override preset interest rate with current country default if available
+      if (
+        defaultInterestRate &&
+        (strategy.strategy_type === "leveraged" ||
+          strategy.strategy_type === "mixed")
+      ) {
+        updatedStrategy.interest_rate = defaultInterestRate;
+      }
+
+      return updatedStrategy;
+    });
+    setStrategies(strategiesWithMonths);
+
+    // Clear any existing results
+    setSimulationResults([]);
+    setSimulationError(undefined);
+  };
+
+  const getCurrentSimulationData = (): SimulationPreset => {
+    return {
+      id: "current",
+      name: "Current Simulation",
+      description: "Current simulation configuration",
+      created_date: new Date().toISOString().split("T")[0],
+      settings: {
+        availableCapital: availableCapital || 0,
+        simulationMonths,
+        currency,
+        appreciationRate,
+      },
+      property,
+      operating,
+      capitalInjections,
+      strategies,
+    };
+  };
+
+  const applyCountrySettings = (
+    settings: CountrySettings,
+    investorType: "local" | "international",
+  ) => {
+    // Apply currency
+    setCurrency(settings.currency);
+
+    // Apply market settings
+    setAppreciationRate(settings.market.appreciation_rate);
+
+    // Apply property settings (operating expenses)
+    setOperating((prev) => ({
+      ...prev,
+      vacancy_rate: settings.market.vacancy_rate,
+      property_management_fee_rate:
+        settings.market.property_management_fee_rate,
+      monthly_insurance: settings.fees.insurance_rate
+        ? ((property.purchase_price || 1000000) *
+            settings.fees.insurance_rate) /
+          12
+        : prev.monthly_insurance,
+    }));
+
+    // Apply property costs
+    setProperty((prev) => ({
+      ...prev,
+      transfer_duty: settings.fees.transfer_duty_rate
+        ? (prev.purchase_price || 1000000) * settings.fees.transfer_duty_rate
+        : settings.fees.conveyancing_fees || prev.transfer_duty,
+      conveyancing_fees:
+        settings.fees.conveyancing_fees || prev.conveyancing_fees,
+      bond_registration:
+        settings.fees.bond_registration || prev.bond_registration,
+    }));
+
+    // Set LTV restriction for international investors
+    const investorSettings = settings.investor_type_settings[investorType];
+    setCurrentLtvRestriction(investorSettings.mortgage.max_ltv);
+
+    // Set default interest rate for new strategies
+    setDefaultInterestRate(investorSettings.mortgage.default_interest_rate);
+
+    // Override ALL existing strategy interest rates with country default rates
+    // This ensures that loaded presets/simulations use local interest rates
+    setStrategies((prevStrategies) =>
+      prevStrategies.map((strategy) => ({
+        ...strategy,
+        interest_rate:
+          strategy.strategy_type !== "cash_only"
+            ? investorSettings.mortgage.default_interest_rate
+            : strategy.interest_rate,
+      })),
+    );
+  };
+
   const runSimulation = async () => {
     if (strategies.length === 0) {
       alert("Please add at least one strategy to simulate");
@@ -119,13 +247,26 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Property Investment Calculator
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Compare investment strategies and simulate portfolio growth
-        </p>
+      <div className="mb-8">
+        <div className="flex justify-between items-start mb-4">
+          <SimulationButtons
+            onLoadSimulation={loadSimulation}
+            currentSimulationData={getCurrentSimulationData()}
+          />
+          <CountrySelector
+            onSettingsApply={applyCountrySettings}
+            selectedInvestorType={selectedInvestorType}
+            onInvestorTypeChange={setSelectedInvestorType}
+          />
+        </div>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Property Investment Calculator
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Compare investment strategies and simulate portfolio growth
+          </p>
+        </div>
       </div>
 
       {/* Settings Bar */}
@@ -167,7 +308,13 @@ export default function Home() {
           Strategies
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <StrategyBuilder onAddStrategy={addStrategy} />
+          <StrategyBuilder
+            onAddStrategy={addStrategy}
+            simulationMonths={simulationMonths}
+            currentLtvRestriction={currentLtvRestriction}
+            selectedInvestorType={selectedInvestorType}
+            defaultInterestRate={defaultInterestRate}
+          />
           <StrategyList
             strategies={strategies}
             onRemoveStrategy={removeStrategy}

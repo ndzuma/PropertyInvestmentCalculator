@@ -32,7 +32,7 @@ export default function CapitalInjections({
   currency,
 }: CapitalInjectionsProps) {
   const [newInjection, setNewInjection] = useState<CapitalInjectionRequest>({
-    amount: undefined,
+    amount: 0,
     frequency: "monthly",
     start_period: 1,
     end_period: undefined,
@@ -60,7 +60,7 @@ export default function CapitalInjections({
 
     // Reset form
     setNewInjection({
-      amount: undefined,
+      amount: 0,
       frequency: "monthly",
       start_period: 1,
       end_period: undefined,
@@ -131,7 +131,7 @@ export default function CapitalInjections({
                 onChange={(e) =>
                   setNewInjection({
                     ...newInjection,
-                    amount: e.target.value ? Number(e.target.value) : undefined,
+                    amount: e.target.value ? Number(e.target.value) : 0,
                   })
                 }
                 min="0"

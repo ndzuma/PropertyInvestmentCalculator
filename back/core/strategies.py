@@ -50,6 +50,7 @@ class StrategyConfig:
     """Configuration for investment strategy"""
 
     strategy_type: StrategyType
+    simulation_months: int
     leverage_ratio: float = 0.0  # 0.7 for 70% leverage (when leveraged)
     cash_ratio: float = 1.0  # 0.3 for 30% cash (deprecated for mixed strategies)
 
@@ -64,7 +65,6 @@ class StrategyConfig:
     )
     enable_reinvestment: bool = True
     tracking_frequency: TrackingFrequency = TrackingFrequency.MONTHLY
-    simulation_months: int = 120  # Default 10 years = 120 months
 
     # Additional capital injection parameters
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None
@@ -1054,14 +1054,15 @@ class PropertyPortfolioSimulator:
 
 
 def create_cash_strategy(
+    months: int,
     reinvestment: bool = True,
     tracking: TrackingFrequency = TrackingFrequency.MONTHLY,
-    months: int = 120,
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None,
 ) -> StrategyConfig:
     """Create a cash-only strategy"""
     return StrategyConfig(
         strategy_type=StrategyType.CASH_ONLY,
+        simulation_months=months,
         leverage_ratio=0.0,
         cash_ratio=1.0,
         leveraged_property_ratio=0.0,
@@ -1070,23 +1071,23 @@ def create_cash_strategy(
         enable_refinancing=False,
         enable_reinvestment=reinvestment,
         tracking_frequency=tracking,
-        simulation_months=months,
         additional_capital_injections=additional_capital_injections or [],
     )
 
 
 def create_leveraged_strategy(
+    months: int,
     leverage_ratio: float = 0.7,
     refinancing: bool = True,
     refinance_years: float = 1.0,
     reinvestment: bool = True,
     tracking: TrackingFrequency = TrackingFrequency.MONTHLY,
-    months: int = 120,
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None,
 ) -> StrategyConfig:
     """Create a leveraged strategy"""
     return StrategyConfig(
         strategy_type=StrategyType.LEVERAGED,
+        simulation_months=months,
         leverage_ratio=leverage_ratio,
         cash_ratio=1.0 - leverage_ratio,
         leveraged_property_ratio=1.0,
@@ -1096,12 +1097,12 @@ def create_leveraged_strategy(
         refinance_frequency_years=refinance_years,
         enable_reinvestment=reinvestment,
         tracking_frequency=tracking,
-        simulation_months=months,
         additional_capital_injections=additional_capital_injections or [],
     )
 
 
 def create_mixed_strategy(
+    months: int,
     leveraged_property_ratio: float = 0.7,  # 70% of properties leveraged
     cash_property_ratio: float = 0.3,  # 30% of properties cash
     leverage_ratio: float = 0.5,  # 50% LTV when leveraged
@@ -1110,7 +1111,6 @@ def create_mixed_strategy(
     refinance_years: float = 1.0,
     reinvestment: bool = True,
     tracking: TrackingFrequency = TrackingFrequency.MONTHLY,
-    months: int = 120,
     additional_capital_injections: Optional[List[AdditionalCapitalInjection]] = None,
 ) -> StrategyConfig:
     """Create a mixed strategy with both leveraged and cash properties"""
@@ -1122,6 +1122,7 @@ def create_mixed_strategy(
 
     return StrategyConfig(
         strategy_type=StrategyType.MIXED,
+        simulation_months=months,
         leverage_ratio=leverage_ratio,
         cash_ratio=1.0 - leverage_ratio,
         leveraged_property_ratio=leveraged_property_ratio,
@@ -1131,7 +1132,6 @@ def create_mixed_strategy(
         refinance_frequency_years=refinance_years,
         enable_reinvestment=reinvestment,
         tracking_frequency=tracking,
-        simulation_months=months,
         additional_capital_injections=additional_capital_injections or [],
     )
 

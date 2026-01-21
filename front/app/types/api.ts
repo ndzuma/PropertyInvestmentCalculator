@@ -24,7 +24,7 @@ export type CapitalInjectionFrequency =
   | "one_time";
 
 export interface CapitalInjectionRequest {
-  amount?: number;
+  amount: number;
   frequency: CapitalInjectionFrequency;
   start_period: number;
   end_period?: number;
@@ -279,4 +279,114 @@ export interface StrategyPreset {
 export interface ValidationResponse {
   valid: boolean;
   errors: string[];
+}
+
+export interface SimulationPreset {
+  id: string;
+  name: string;
+  description: string;
+  created_date: string;
+  settings: {
+    availableCapital: number;
+    simulationMonths: number;
+    currency: string;
+    appreciationRate: number;
+  };
+  property: PropertyRequest;
+  operating: OperatingRequest;
+  capitalInjections: CapitalInjectionRequest[];
+  strategies: StrategyRequest[];
+}
+
+export interface SimulationPresetIndex {
+  simulations: Array<{
+    id: string;
+    name: string;
+    description: string;
+    filename: string;
+    currency: string;
+    available_capital: number;
+    preview: {
+      property_price: string;
+      strategies: number;
+      timeframe: string;
+    };
+  }>;
+}
+
+export interface CountrySettings {
+  currency: string;
+  mortgage: {
+    default_interest_rate: number;
+    max_ltv: number | null;
+    default_term_years: number;
+  };
+  market: {
+    appreciation_rate: number;
+    vacancy_rate: number;
+    property_management_fee_rate: number;
+  };
+  fees: {
+    transfer_duty_rate?: number;
+    conveyancing_fees?: number;
+    bond_registration?: number;
+    insurance_rate?: number;
+  };
+  investor_type_settings: {
+    local: {
+      mortgage: {
+        max_ltv: number | null;
+        default_interest_rate: number;
+      };
+    };
+    international: {
+      mortgage: {
+        max_ltv: number | null;
+        default_interest_rate: number;
+      };
+    };
+  };
+}
+
+export interface CountrySuburb {
+  id: string;
+  name: string;
+  settings: CountrySettings;
+}
+
+export interface CountryCity {
+  id: string;
+  name: string;
+  suburbs: CountrySuburb[];
+  settings: CountrySettings;
+}
+
+export interface CountryRegion {
+  id: string;
+  name: string;
+  type: string;
+  cities: CountryCity[];
+  settings: CountrySettings;
+}
+
+export interface CountryData {
+  id: string;
+  name: string;
+  code: string;
+  currency: string;
+  flag: string;
+  regions: CountryRegion[];
+  settings: CountrySettings;
+}
+
+export interface CountryIndex {
+  countries: Array<{
+    id: string;
+    name: string;
+    code: string;
+    currency: string;
+    flag: string;
+    filename: string;
+    description: string;
+  }>;
 }
