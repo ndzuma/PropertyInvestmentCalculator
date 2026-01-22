@@ -77,6 +77,7 @@ class StrategyRequest(BaseModel):
     # Mixed strategy parameters
     leveraged_property_ratio: Optional[float] = None
     cash_property_ratio: Optional[float] = None
+    cash_percentage: Optional[float] = None
     first_property_type: Optional[str] = "cash"
 
 

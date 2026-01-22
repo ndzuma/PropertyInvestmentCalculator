@@ -1,0 +1,73 @@
+{
+  "id": "test-preset",
+  "name": "Test Property Investment",
+  "description": "A test simulation with mixed strategies for integration testing",
+  "created_date": "2024-01-15",
+  "settings": {
+    "availableCapital": 500000,
+    "simulationMonths": 120,
+    "currency": "R",
+    "appreciationRate": 0.06
+  },
+  "property": {
+    "purchase_price": 1200000,
+    "transfer_duty": 60000,
+    "conveyancing_fees": 25000,
+    "bond_registration": 12000,
+    "furnishing_cost": 80000
+  },
+  "operating": {
+    "monthly_rental_income": 12000,
+    "vacancy_rate": 0.08,
+    "monthly_levies": 1500,
+    "property_management_fee_rate": 0.08,
+    "monthly_insurance": 800,
+    "monthly_maintenance_reserve": 1000,
+    "monthly_furnishing_repair_costs": 500
+  },
+  "capitalInjections": [
+    {
+      "amount": 50000,
+      "frequency": "yearly",
+      "start_period": 12,
+      "end_period": 60,
+      "specific_periods": []
+    }
+  ],
+  "strategies": [
+    {
+      "name": "Conservative Cash",
+      "strategy_type": "cash_only",
+      "simulation_months": 120,
+      "reinvest_cashflow": true,
+      "enable_refinancing": false,
+      "refinance_frequency": "never",
+      "custom_refinance_months": []
+    },
+    {
+      "name": "Leveraged 70%",
+      "strategy_type": "leveraged",
+      "simulation_months": 120,
+      "reinvest_cashflow": true,
+      "enable_refinancing": false,
+      "refinance_frequency": "never",
+      "custom_refinance_months": [],
+      "ltv_ratio": 0.7,
+      "interest_rate": 0.105
+    },
+    {
+      "name": "Mixed Growth",
+      "strategy_type": "mixed",
+      "simulation_months": 120,
+      "reinvest_cashflow": true,
+      "enable_refinancing": true,
+      "refinance_frequency": "other",
+      "custom_refinance_months": 24,
+      "ltv_ratio": 0.6,
+      "interest_rate": 0.11,
+      "target_refinance_ltv": 0.75,
+      "cash_property_ratio": 0.3,
+      "leveraged_property_ratio": 0.7
+    }
+  ]
+}

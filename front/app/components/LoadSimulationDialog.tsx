@@ -10,9 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Upload, FileText, AlertCircle } from "lucide-react";
+import { Upload, AlertCircle } from "lucide-react";
 import { SimulationPreset, SimulationPresetIndex } from "../types/api";
 
 interface LoadSimulationDialogProps {
@@ -26,7 +25,9 @@ export default function LoadSimulationDialog({
   onOpenChange,
   onLoadSimulation,
 }: LoadSimulationDialogProps) {
-  const [presets, setPresets] = useState<SimulationPresetIndex["simulations"]>([]);
+  const [presets, setPresets] = useState<SimulationPresetIndex["simulations"]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [uploadError, setUploadError] = useState<string>();
@@ -92,7 +93,12 @@ export default function LoadSimulationDialog({
         const preset: SimulationPreset = JSON.parse(content);
 
         // Basic validation
-        if (!preset.settings || !preset.property || !preset.operating || !preset.strategies) {
+        if (
+          !preset.settings ||
+          !preset.property ||
+          !preset.operating ||
+          !preset.strategies
+        ) {
           throw new Error("Invalid simulation file format");
         }
 
@@ -100,7 +106,9 @@ export default function LoadSimulationDialog({
         onOpenChange(false);
         setSelectedPreset(undefined);
       } catch (err) {
-        setUploadError(err instanceof Error ? err.message : "Invalid JSON file");
+        setUploadError(
+          err instanceof Error ? err.message : "Invalid JSON file",
+        );
       }
     };
     reader.readAsText(file);
@@ -130,7 +138,9 @@ export default function LoadSimulationDialog({
 
           {/* Predefined Simulations */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Predefined Simulations</h3>
+            <h3 className="text-lg font-semibold mb-3">
+              Predefined Simulations
+            </h3>
             {loading ? (
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -157,10 +167,18 @@ export default function LoadSimulationDialog({
                           {preset.description}
                         </p>
                         <div className="flex gap-4 text-xs text-gray-500">
-                          <span>Capital: {preset.currency}{preset.available_capital.toLocaleString()}</span>
-                          <span>Property: {preset.preview.property_price}</span>
-                          <span>{preset.preview.strategies} strategies</span>
-                          <span>{preset.preview.timeframe}</span>
+                          <span>
+                            Capital: {preset.currency || ""}
+                            {preset.available_capital?.toLocaleString() ||
+                              "N/A"}
+                          </span>
+                          <span>
+                            Property: {preset.preview?.property_price || "N/A"}
+                          </span>
+                          <span>
+                            {preset.preview?.strategies || 0} strategies
+                          </span>
+                          <span>{preset.preview?.timeframe || "N/A"}</span>
                         </div>
                       </div>
                       {selectedPreset === preset.id && (
@@ -184,7 +202,9 @@ export default function LoadSimulationDialog({
 
           {/* File Upload */}
           <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold mb-3">Upload Custom Simulation</h3>
+            <h3 className="text-lg font-semibold mb-3">
+              Upload Custom Simulation
+            </h3>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
               <div className="text-center">
                 <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />

@@ -74,12 +74,16 @@ export default function StrategyBuilder({
   // Update strategy interest rate when default changes
   useEffect(() => {
     if (defaultInterestRate && strategy.strategy_type !== "cash_only") {
-      setStrategy((prev) => ({
-        ...prev,
-        interest_rate: defaultInterestRate,
-      }));
+      // Use setTimeout to avoid cascading renders
+      const timer = setTimeout(() => {
+        setStrategy((prev) => ({
+          ...prev,
+          interest_rate: defaultInterestRate,
+        }));
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [defaultInterestRate]);
+  }, [defaultInterestRate, strategy.strategy_type]);
 
   const updateStrategy = (
     field: keyof StrategyRequest,
@@ -301,7 +305,7 @@ export default function StrategyBuilder({
                   strategy.ltv_ratio &&
                   strategy.ltv_ratio > currentLtvRestriction && (
                     <div className="flex items-center gap-2 mt-2 text-amber-700 bg-amber-50 p-2 rounded-md">
-                      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                      <AlertTriangle className="h-4 w-4 shrink-0" />
                       <span className="text-sm">
                         Warning: LTV exceeds international investor limit of{" "}
                         {(currentLtvRestriction * 100).toFixed(0)}%

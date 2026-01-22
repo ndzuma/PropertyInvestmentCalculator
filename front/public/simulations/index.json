@@ -1,3 +1,18 @@
 {
-  "simulations": []
+  "simulations": [
+    {
+      "id": "test-preset",
+      "name": "Test Property Investment",
+      "description": "A test simulation with mixed strategies for integration testing",
+      "created_date": "2024-01-15",
+      "filename": "test-preset.json",
+      "currency": "R",
+      "available_capital": 500000,
+      "preview": {
+        "property_price": "R1,200,000",
+        "strategies": 3,
+        "timeframe": "10 years"
+      }
+    }
+  ]
 }

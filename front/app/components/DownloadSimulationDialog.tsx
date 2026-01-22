@@ -41,8 +41,8 @@ export default function DownloadSimulationDialog({
       const downloadData = {
         ...simulationData,
         name: filename,
-        created_date: new Date().toISOString().split('T')[0],
-        id: filename.toLowerCase().replace(/[^a-z0-9]/g, '-')
+        created_date: new Date().toISOString().split("T")[0],
+        id: filename.toLowerCase().replace(/[^a-z0-9]/g, "-"),
       };
 
       // Create blob and download
@@ -53,7 +53,7 @@ export default function DownloadSimulationDialog({
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${filename.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json`;
+      link.download = `${filename.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.json`;
 
       document.body.appendChild(link);
       link.click();
@@ -110,26 +110,43 @@ export default function DownloadSimulationDialog({
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium mb-2">Current Configuration</h4>
               <div className="text-sm text-gray-600 space-y-1">
-                <p>Available Capital: {simulationData.settings.currency}{simulationData.settings.availableCapital.toLocaleString()}</p>
-                <p>Property Price: {simulationData.settings.currency}{simulationData.property.purchase_price.toLocaleString()}</p>
+                <p>
+                  Available Capital: {simulationData.settings.currency}
+                  {simulationData.settings.availableCapital.toLocaleString()}
+                </p>
+                <p>
+                  Property Price: {simulationData.settings.currency}
+                  {simulationData.property.purchase_price.toLocaleString()}
+                </p>
                 <p>Strategies: {simulationData.strategies.length}</p>
-                <p>Capital Injections: {simulationData.capitalInjections.length}</p>
-                <p>Simulation Period: {simulationData.settings.simulationMonths} months</p>
+                <p>
+                  Capital Injections: {simulationData.capitalInjections.length}
+                </p>
+                <p>
+                  Simulation Period: {simulationData.settings.simulationMonths}{" "}
+                  months
+                </p>
               </div>
             </div>
 
             {/* Warning Message */}
             <div className="flex items-start gap-2 text-amber-700 bg-amber-50 p-3 rounded-lg">
-              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
               <div className="text-sm">
                 <p className="font-medium">Save your work</p>
-                <p>This will download your complete simulation configuration. You can load it later to restore all settings.</p>
+                <p>
+                  This will download your complete simulation configuration. You
+                  can load it later to restore all settings.
+                </p>
               </div>
             </div>
 
             {/* Filename Input */}
             <div>
-              <label htmlFor="filename" className="block text-sm font-medium mb-2">
+              <label
+                htmlFor="filename"
+                className="block text-sm font-medium mb-2"
+              >
                 Simulation Name
               </label>
               <Input
@@ -143,7 +160,10 @@ export default function DownloadSimulationDialog({
                 maxLength={50}
               />
               <p className="text-xs text-gray-500 mt-1">
-                This will be saved as: {filename ? `${filename.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json` : 'filename.json'}
+                This will be saved as:{" "}
+                {filename
+                  ? `${filename.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.json`
+                  : "filename.json"}
               </p>
             </div>
           </div>

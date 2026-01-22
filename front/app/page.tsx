@@ -113,6 +113,14 @@ export default function Home() {
         simulation_months: preset.settings.simulationMonths,
       };
 
+      // Fix custom_refinance_months: convert empty arrays to undefined
+      if (
+        Array.isArray(updatedStrategy.custom_refinance_months) &&
+        updatedStrategy.custom_refinance_months.length === 0
+      ) {
+        updatedStrategy.custom_refinance_months = undefined;
+      }
+
       // Override preset interest rate with current country default if available
       if (
         defaultInterestRate &&
