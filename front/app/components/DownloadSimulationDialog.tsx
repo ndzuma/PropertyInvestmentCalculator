@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, AlertCircle, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 import { SimulationPreset } from "../types/api";
 
 interface DownloadSimulationDialogProps {
@@ -62,6 +63,12 @@ export default function DownloadSimulationDialog({
       URL.revokeObjectURL(url);
 
       setDownloadSuccess(true);
+
+      // Show success toast
+      toast.success("Simulation downloaded", {
+        description: `"${filename}" has been saved to your downloads`,
+      });
+
       setTimeout(() => {
         setDownloadSuccess(false);
         onOpenChange(false);

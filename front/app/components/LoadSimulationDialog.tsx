@@ -18,12 +18,14 @@ interface LoadSimulationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onLoadSimulation: (preset: SimulationPreset) => void;
+  onLoadError?: (error: string) => void;
 }
 
 export default function LoadSimulationDialog({
   open,
   onOpenChange,
   onLoadSimulation,
+  onLoadError,
 }: LoadSimulationDialogProps) {
   const [presets, setPresets] = useState<SimulationPresetIndex["simulations"]>(
     [],
@@ -69,7 +71,10 @@ export default function LoadSimulationDialog({
       onOpenChange(false);
       setSelectedPreset(undefined);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load preset");
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to load preset";
+      setError(errorMsg);
+      onLoadError?.(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -106,9 +111,10 @@ export default function LoadSimulationDialog({
         onOpenChange(false);
         setSelectedPreset(undefined);
       } catch (err) {
-        setUploadError(
-          err instanceof Error ? err.message : "Invalid JSON file",
-        );
+        const errorMsg =
+          err instanceof Error ? err.message : "Invalid JSON file";
+        setUploadError(errorMsg);
+        onLoadError?.(errorMsg);
       }
     };
     reader.readAsText(file);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Upload } from "lucide-react";
+import { toast } from "sonner";
 import LoadSimulationDialog from "./LoadSimulationDialog";
 import DownloadSimulationDialog from "./DownloadSimulationDialog";
 import { SimulationPreset } from "../types/api";
@@ -11,6 +12,22 @@ interface SimulationButtonsProps {
   onLoadSimulation: (preset: SimulationPreset) => void;
   currentSimulationData: SimulationPreset;
 }
+
+const handleLoadSuccess = (
+  preset: SimulationPreset,
+  onLoadSimulation: (preset: SimulationPreset) => void,
+) => {
+  onLoadSimulation(preset);
+  toast.success("Simulation loaded successfully", {
+    description: `Loaded "${preset.name}" with ${preset.strategies.length} strategies`,
+  });
+};
+
+const handleLoadError = (error: string) => {
+  toast.error("Failed to load simulation", {
+    description: error,
+  });
+};
 
 export default function SimulationButtons({
   onLoadSimulation,
@@ -46,7 +63,10 @@ export default function SimulationButtons({
       <LoadSimulationDialog
         open={showLoadDialog}
         onOpenChange={setShowLoadDialog}
-        onLoadSimulation={onLoadSimulation}
+        onLoadSimulation={(preset: SimulationPreset) =>
+          handleLoadSuccess(preset, onLoadSimulation)
+        }
+        onLoadError={handleLoadError}
       />
 
       <DownloadSimulationDialog

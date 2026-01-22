@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import SimulationButtons from "./components/SimulationButtons";
 import CountrySelector from "./components/CountrySelector";
 import { CountrySettings } from "./types/api";
+import { toast } from "sonner";
 
 export default function Home() {
   // Settings state
@@ -215,7 +216,10 @@ export default function Home() {
 
   const runSimulation = async () => {
     if (strategies.length === 0) {
-      alert("Please add at least one strategy to simulate");
+      toast.error("No strategies to simulate", {
+        description:
+          "Please add at least one strategy before running simulation",
+      });
       return;
     }
 
@@ -240,13 +244,34 @@ export default function Home() {
       if (data.success) {
         setSimulationResults(data.results);
       } else {
-        setSimulationError(data.error || "Simulation failed");
+        const errorMsg = data.error || "Simulation failed";
+        setSimulationError(errorMsg);
+        toast.error("Simulation failed", {
+          description: errorMsg,
+        });
       }
     } catch (error) {
       console.error("Simulation error:", error);
-      setSimulationError(
-        error instanceof Error ? error.message : "Failed to run simulation",
-      );
+      const errorMsg =
+        error instanceof Error ? error.message : "Failed to run simulation";
+
+      // Check for specific error types
+      if (errorMsg.includes("429") || errorMsg.includes("rate limit")) {
+        toast.error("Rate limit exceeded", {
+          description: "Please wait a moment before running another simulation",
+        });
+      } else if (errorMsg.includes("timeout")) {
+        toast.error("Simulation timeout", {
+          description:
+            "The simulation took too long to complete. Try reducing complexity.",
+        });
+      } else {
+        toast.error("Connection error", {
+          description: errorMsg,
+        });
+      }
+
+      setSimulationError(errorMsg);
     } finally {
       setIsSimulating(false);
     }

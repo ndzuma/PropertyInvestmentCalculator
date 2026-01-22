@@ -10,10 +10,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Globe, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { CountryIndex, CountryData, CountrySettings } from "../types/api";
 
 interface CountrySelectorProps {
-  onSettingsApply: (settings: CountrySettings, investorType: "local" | "international") => void;
+  onSettingsApply: (
+    settings: CountrySettings,
+    investorType: "local" | "international",
+  ) => void;
   selectedInvestorType: "local" | "international";
   onInvestorTypeChange: (type: "local" | "international") => void;
 }
@@ -42,7 +46,9 @@ export default function CountrySelector({
         const data: CountryIndex = await response.json();
         setCountries(data.countries);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load countries");
+        setError(
+          err instanceof Error ? err.message : "Failed to load countries",
+        );
       }
     };
 
@@ -57,7 +63,7 @@ export default function CountrySelector({
       setLoading(true);
       setError(undefined);
       try {
-        const country = countries.find(c => c.id === selectedCountry);
+        const country = countries.find((c) => c.id === selectedCountry);
         if (!country) throw new Error("Country not found");
 
         const response = await fetch(`/country-settings/${country.filename}`);
@@ -65,7 +71,9 @@ export default function CountrySelector({
         const data: CountryData = await response.json();
         setCountryData(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load country data");
+        setError(
+          err instanceof Error ? err.message : "Failed to load country data",
+        );
         setCountryData(null);
       } finally {
         setLoading(false);
@@ -96,20 +104,20 @@ export default function CountrySelector({
 
     // Get the most specific settings available
     if (selectedSuburb && selectedCity && selectedRegion) {
-      const region = countryData.regions.find(r => r.id === selectedRegion);
-      const city = region?.cities.find(c => c.id === selectedCity);
-      const suburb = city?.suburbs.find(s => s.id === selectedSuburb);
+      const region = countryData.regions.find((r) => r.id === selectedRegion);
+      const city = region?.cities.find((c) => c.id === selectedCity);
+      const suburb = city?.suburbs.find((s) => s.id === selectedSuburb);
       if (suburb) return suburb.settings;
     }
 
     if (selectedCity && selectedRegion) {
-      const region = countryData.regions.find(r => r.id === selectedRegion);
-      const city = region?.cities.find(c => c.id === selectedCity);
+      const region = countryData.regions.find((r) => r.id === selectedRegion);
+      const city = region?.cities.find((c) => c.id === selectedCity);
       if (city) return city.settings;
     }
 
     if (selectedRegion) {
-      const region = countryData.regions.find(r => r.id === selectedRegion);
+      const region = countryData.regions.find((r) => r.id === selectedRegion);
       if (region) return region.settings;
     }
 
@@ -119,17 +127,50 @@ export default function CountrySelector({
   const applySettings = () => {
     const settings = getCurrentSettings();
     if (settings) {
+      const locationName = getLocationDisplayName();
       onSettingsApply(settings, selectedInvestorType);
+
+      // Success toast
+      toast.success("Settings applied successfully", {
+        description: `Applied ${locationName} settings for ${selectedInvestorType} investors`,
+      });
+
+      // Warning toast if interest rates will be overridden
+      if (
+        settings.investor_type_settings[selectedInvestorType].mortgage
+          .default_interest_rate
+      ) {
+        toast.warning("Interest rates updated", {
+          description:
+            "Existing strategy interest rates have been updated with local rates",
+        });
+      }
     }
   };
 
-  const getSelectedRegion = () => countryData?.regions.find(r => r.id === selectedRegion);
-  const getSelectedCity = () => getSelectedRegion()?.cities.find(c => c.id === selectedCity);
+  const getSelectedRegion = () =>
+    countryData?.regions.find((r) => r.id === selectedRegion);
+  const getSelectedCity = () =>
+    getSelectedRegion()?.cities.find((c) => c.id === selectedCity);
+
+  const getLocationDisplayName = () => {
+    const country = countries.find((c) => c.id === selectedCountry)?.name;
+    const region = getSelectedRegion()?.name;
+    const city = getSelectedCity()?.name;
+    const suburb = getSelectedCity()?.suburbs.find(
+      (s) => s.id === selectedSuburb,
+    )?.name;
+
+    const parts = [suburb, city, region, country].filter(Boolean);
+    return parts.join(", ") || country || "Unknown location";
+  };
 
   const hasLtvRestriction = () => {
     const settings = getCurrentSettings();
     if (!settings || selectedInvestorType === "local") return false;
-    return settings.investor_type_settings.international.mortgage.max_ltv !== null;
+    return (
+      settings.investor_type_settings.international.mortgage.max_ltv !== null
+    );
   };
 
   const getLtvRestriction = () => {
@@ -212,7 +253,10 @@ export default function CountrySelector({
 
       {/* Investor Type Selection */}
       {getCurrentSettings() && (
-        <Select value={selectedInvestorType} onValueChange={onInvestorTypeChange}>
+        <Select
+          value={selectedInvestorType}
+          onValueChange={onInvestorTypeChange}
+        >
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
@@ -246,9 +290,7 @@ export default function CountrySelector({
       )}
 
       {/* Error Display */}
-      {error && (
-        <span className="text-xs text-red-600">{error}</span>
-      )}
+      {error && <span className="text-xs text-red-600">{error}</span>}
     </div>
   );
 }

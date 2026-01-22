@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 import { AlertTriangle } from "lucide-react";
 
 interface StrategyBuilderProps {
@@ -104,10 +105,22 @@ export default function StrategyBuilder({
       if (
         field === "strategy_type" &&
         (value === "leveraged" || value === "mixed") &&
-        defaultInterestRate &&
-        !prev.interest_rate
+        defaultInterestRate
       ) {
         updated.interest_rate = defaultInterestRate;
+      }
+
+      // Check LTV restriction for international investors
+      if (
+        field === "ltv_ratio" &&
+        typeof value === "number" &&
+        currentLtvRestriction &&
+        selectedInvestorType === "international" &&
+        value > currentLtvRestriction
+      ) {
+        toast.warning("LTV exceeds investor limit", {
+          description: `International investors are limited to ${(currentLtvRestriction * 100).toFixed(0)}% LTV in this location`,
+        });
       }
 
       return updated;
@@ -169,26 +182,35 @@ export default function StrategyBuilder({
         strategy.ltv_ratio <= 0 ||
         strategy.ltv_ratio >= 1
       ) {
-        alert("LTV ratio must be between 0 and 1");
+        toast.error("Invalid LTV ratio", {
+          description: "LTV ratio must be between 0.01 and 0.99 (1% to 99%)",
+        });
         return;
       }
       if (!strategy.interest_rate || strategy.interest_rate <= 0) {
-        alert("Interest rate must be greater than 0");
+        toast.error("Invalid interest rate", {
+          description: "Interest rate must be greater than 0%",
+        });
         return;
       }
     }
 
     if (strategy.strategy_type === "mixed") {
       if (!strategy.leveraged_property_ratio || !strategy.cash_property_ratio) {
-        alert("Mixed strategy requires property ratios");
+        toast.error("Missing property ratios", {
+          description:
+            "Mixed strategy requires both leveraged and cash property ratios",
+        });
         return;
       }
       if (
         Math.abs(
-          strategy.leveraged_property_ratio + strategy.cash_property_ratio - 1,
-        ) > 0.001
+          strategy.leveraged_property_ratio + strategy.cash_property_ratio,
+        ) !== 1.0
       ) {
-        alert("Property ratios must sum to 1.0");
+        toast.error("Invalid property ratios", {
+          description: "Leveraged and cash property ratios must sum to 100%",
+        });
         return;
       }
     }
@@ -299,19 +321,6 @@ export default function StrategyBuilder({
                   />
                   <InputGroupAddon align="inline-end">%</InputGroupAddon>
                 </InputGroup>
-                {/* LTV Warning for International Investors */}
-                {currentLtvRestriction &&
-                  selectedInvestorType === "international" &&
-                  strategy.ltv_ratio &&
-                  strategy.ltv_ratio > currentLtvRestriction && (
-                    <div className="flex items-center gap-2 mt-2 text-amber-700 bg-amber-50 p-2 rounded-md">
-                      <AlertTriangle className="h-4 w-4 shrink-0" />
-                      <span className="text-sm">
-                        Warning: LTV exceeds international investor limit of{" "}
-                        {(currentLtvRestriction * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  )}
               </div>
 
               {/* Interest Rate */}
