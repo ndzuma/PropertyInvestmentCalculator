@@ -123,31 +123,44 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ## Development Roadmap
 
-Planned features and improvements, ordered from simplest to most complex:
+### ✅ COMPLETED FEATURES
 
-### 🟢 Simple (Quick Wins)
-- [ ] **Dockerization** - Add Dockerfile for easy homelab deployment
-- [ ] **HTTP Status Codes** - Improve API status code support for better monitoring
-- [ ] **Rate Limiting** - Add API rate limiting to prevent abuse
-- [ ] **Load Test Data** - Create comprehensive test datasets
+- [x] **Core Investment Engine** - Property simulation with cash flow calculations
+- [x] **Strategy Comparison** - Cash only, leveraged, and mixed portfolio strategies
+- [x] **Portfolio Growth Analysis** - Multi-year property acquisition simulations
+- [x] **Enhanced Error Handling** - Timeout protection and graceful error responses
+- [x] **Rate Limiting** - API protection against abuse (10 simulations/min)
+- [x] **Save/Load Simulation Data** - JSON-based simulation presets and user configurations
+- [x] **Country-Specific Settings** - Localized settings for South Africa and UK markets
+- [x] **Professional UI/UX Redesign** - Sonner toast notifications and improved user experience
 
-### 🟡 Medium Complexity
-- [ ] **Enhanced Error Handling** - Detailed error responses for better monitoring and debugging
-- [ ] **Save/Load Simulation Data** - Persist and restore simulation configurations
-- [ ] **Backend Testing Suite** - Bulletproof calculation testing and validation
-- [ ] **Taxation Support** - Add tax calculations for different scenarios
+### 🚀 UPCOMING FEATURES
 
-### 🟠 Complex Features  
-- [ ] **User Accounts** - Save simulation history, add notes, user preferences
-- [ ] **Country-Specific Settings** - Localized mortgage rates, taxes, and regulations (ZA, UK, etc.)
+Planned improvements, ordered by priority:
 
-### 🔴 Advanced (Long-term)
-- [ ] **Rental Price Predictor AI** - Machine learning model for rental price predictions
-  - [ ] Phase 1: Preset models for common areas
-  - [ ] Phase 2: Custom model upload and training
-  - [ ] Phase 3: Real-time market data integration
+#### 🟢 Next Phase (High Priority)
+- [ ] **Database Persistence** - PostgreSQL backend for simulation history
+- [ ] **User Authentication** - Save personal simulations and preferences
+- [ ] **Advanced Reporting** - PDF export and detailed analytics
+- [ ] **Mobile Optimization** - Responsive design improvements
 
-Each feature will be developed with proper testing, documentation, and backwards compatibility.
+#### 🟡 Medium Term
+- [ ] **Multi-Currency Support** - USD, EUR, AUD market calculations
+- [ ] **Taxation Integration** - Capital gains, rental income tax calculations
+- [ ] **Market Data Integration** - Real-time property price feeds
+- [ ] **Dockerization** - Container deployment for easy self-hosting
+
+#### 🟠 Advanced Features
+- [ ] **Team Collaboration** - Shared simulations and investor groups
+- [ ] **API Webhooks** - Integration with external property platforms
+- [ ] **Advanced Modeling** - Monte Carlo simulations and risk analysis
+
+#### 🔴 Research & Innovation
+- [ ] **AI Market Predictions** - Machine learning property value forecasting
+- [ ] **Automated Property Sourcing** - Integration with property listing APIs
+- [ ] **Portfolio Optimization** - AI-driven strategy recommendations
+
+Each feature includes comprehensive testing, documentation, and maintains backwards compatibility.
 
 ## Contributing
 
