@@ -1,4 +1,5 @@
 import concurrent.futures
+import copy
 from typing import List
 
 from core.main import (
@@ -24,6 +25,7 @@ from core.strategies import (
 )
 
 from .models import (
+    CapitalInjectionRequest,
     PropertyCostBasis,
     PropertyDetail,
     PropertyExpenses,
@@ -85,7 +87,9 @@ def validate_parameters(request: SimulationRequest) -> ValidationResponse:
     return ValidationResponse(valid=len(errors) == 0, errors=errors)
 
 
-def convert_capital_injections(injections: List) -> List[AdditionalCapitalInjection]:
+def convert_capital_injections(
+    injections: List[CapitalInjectionRequest],
+) -> List[AdditionalCapitalInjection]:
     """Convert API capital injections to core objects"""
     result = []
     for injection in injections:
@@ -98,13 +102,28 @@ def convert_capital_injections(injections: List) -> List[AdditionalCapitalInject
             "one_time": AdditionalCapitalFrequency.ONE_TIME,
         }
 
+        # Handle both dict and object formats
+        if isinstance(injection, dict):
+            amount = injection["amount"]
+            frequency = injection["frequency"]
+            start_period = injection["start_period"]
+            end_period = injection.get("end_period")
+            specific_periods = injection.get("specific_periods")
+        else:
+            amount = injection.amount
+            frequency = injection.frequency
+            start_period = injection.start_period
+            end_period = injection.end_period
+            specific_periods = injection.specific_periods
+
         core_injection = AdditionalCapitalInjection(
-            amount=injection.amount,
-            frequency=frequency_mapping[injection.frequency],
-            start_period=injection.start_period,
-            end_period=injection.end_period,
-            specific_periods=injection.specific_periods,
+            amount=amount,
+            frequency=frequency_mapping[frequency],
+            start_period=start_period,
+            end_period=end_period,
+            specific_periods=specific_periods,
         )
+
         result.append(core_injection)
 
     return result
@@ -192,16 +211,19 @@ def create_strategy_config(
     """Create StrategyConfig from API strategy request"""
 
     if strategy_request.strategy_type == "cash_only":
-        return create_cash_strategy(
+        result = create_cash_strategy(
             months=strategy_request.simulation_months,
             reinvestment=strategy_request.reinvest_cashflow,
             tracking=TrackingFrequency.MONTHLY,
             additional_capital_injections=capital_injections,
         )
 
+        return result
+
     elif strategy_request.strategy_type == "leveraged":
         refinance_years = convert_refinance_frequency_to_years(strategy_request)
-        return create_leveraged_strategy(
+
+        result = create_leveraged_strategy(
             months=strategy_request.simulation_months,
             leverage_ratio=strategy_request.ltv_ratio,
             refinancing=strategy_request.enable_refinancing,
@@ -211,6 +233,8 @@ def create_strategy_config(
             additional_capital_injections=capital_injections,
         )
 
+        return result
+
     elif strategy_request.strategy_type == "mixed":
         first_property_type = (
             FirstPropertyType.CASH
@@ -219,7 +243,8 @@ def create_strategy_config(
         )
 
         refinance_years = convert_refinance_frequency_to_years(strategy_request)
-        return create_mixed_strategy(
+
+        result = create_mixed_strategy(
             months=strategy_request.simulation_months,
             leveraged_property_ratio=strategy_request.leveraged_property_ratio,
             cash_property_ratio=strategy_request.cash_property_ratio,
@@ -231,6 +256,8 @@ def create_strategy_config(
             tracking=TrackingFrequency.MONTHLY,
             additional_capital_injections=capital_injections,
         )
+
+        return result
 
     else:
         raise ValueError(f"Unknown strategy type: {strategy_request.strategy_type}")
@@ -254,13 +281,17 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 error=f"Validation failed: {', '.join(validation.errors)}",
             )
 
-        # Convert capital injections once
-        capital_injections = convert_capital_injections(request.capital_injections)
+        # Convert capital injections once and store in local scope
+        original_capital_injections = convert_capital_injections(
+            request.capital_injections
+        )
 
         # Run simulation for each strategy
         results = []
         for strategy_request in request.strategies:
-            # Create strategy config
+            # Use fresh copy for each strategy to prevent mutation
+            capital_injections = original_capital_injections.copy()
+
             strategy_config = create_strategy_config(
                 strategy_request, capital_injections
             )
@@ -275,6 +306,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 property_investment.financing.interest_rate = (
                     strategy_request.interest_rate
                 )
+
             if strategy_request.loan_term_years:
                 property_investment.financing.loan_term_years = (
                     strategy_request.loan_term_years
@@ -285,6 +317,7 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                 )
 
             # Run simulation with timeout
+            timeout_seconds = 30
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future = executor.submit(
                     _run_single_simulation,
@@ -293,12 +326,12 @@ def simulate_strategies(request: SimulationRequest) -> SimulationResponse:
                     strategy_config,
                 )
                 try:
-                    snapshots = future.result(timeout=5.0)  # 5 second timeout
+                    snapshots = future.result(timeout=timeout_seconds)
                 except concurrent.futures.TimeoutError:
                     return SimulationResponse(
                         success=False,
                         results=[],
-                        error=f"Simulation timed out after 5 seconds for strategy '{strategy_request.name}'. This may be due to an infinite loop in property acquisition.",
+                        error=f"Simulation timed out after {timeout_seconds} seconds. This may indicate an infinite loop or very complex scenario.",
                     )
 
             # Convert results to API format with enhanced metrics
